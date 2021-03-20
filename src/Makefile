@@ -1,4 +1,7 @@
 DRIVER_SRC := driver
-out/a64.o: PMCTestA.cpp *.h $(DRIVER_SRC)/*.h
+INCLUDES += -I/usr/include/i386-linux-gnu
+INCLUDES += -I$(DRIVER_SRC)
+BITS ?= 32
+out/a$(BITS).o: PMCTestA.cpp *.h $(DRIVER_SRC)/*.h
 	mkdir -p out
-	g++ -O2 -c -m64 -o out/a64.o PMCTestA.cpp -I$(DRIVER_SRC)
+	g++ -O2 -c -m$(BITS) -o out/a$(BITS).o PMCTestA.cpp $(INCLUDES)
