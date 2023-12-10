@@ -93,7 +93,7 @@ static inline int Readpmc(int nPerfCtr) {
 
 // Declare the gettid syscall.
 //_syscall0(pid_t, gettid);
-static inline pid_t gettid(void) { return syscall(__NR_gettid); }
+inline pid_t gettid(void) { return syscall(__NR_gettid); }
 
 
 // Function declaration for thread procedure
