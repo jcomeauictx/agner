@@ -1,5 +1,6 @@
 DRIVER_SRC := driver
 BITS ?= 32
+CXXFLAGS ?= -z noexecstack
 CXXFLAGS += -m$(BITS)
 INCLUDES += -I$(DRIVER_SRC)
 ifeq ($(BITS),32)
@@ -8,8 +9,9 @@ else
  INCLUDES += -I/usr/include/x86_64-linux-gnu
 endif
 all: out/a$(BITS).o PMCTestA
-out/a$(BITS).o: PMCTestA.cpp *.h $(DRIVER_SRC)/*.h
-	mkdir -p out
-	g++ -O2 -c $(CXXFLAGS) -o $@ PMCTestA.cpp $(INCLUDES)
+out:
+	mkdir -p $@
+out/a$(BITS).o: PMCTestA.cpp *.h $(DRIVER_SRC)/*.h | out
+	g++ -O2 -c $(CXXFLAGS) -o $@ $< $(INCLUDES)
 %: %.cpp
 	g++ -O2 -c $(CXXFLAGS) -o $@ $< $(INCLUDES)

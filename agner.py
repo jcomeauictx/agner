@@ -7,7 +7,7 @@ import glob
 import imp
 import json
 import os
-import subprocess
+from call import check_call
 import sys
 from argparse import ArgumentParser
 from lib.agner import Agner
@@ -25,14 +25,14 @@ for test in set(TEST_PYS):
 def install_module(args):
     print("This will require superuser privileges; sudo will be called.")
     driver_dir = os.path.join(ROOT, "src", "driver")
-    subprocess.check_call(["make"], cwd=driver_dir)
-    subprocess.check_call(['sudo', './install.sh'], cwd=driver_dir)
+    check_call(["make"], cwd=driver_dir)
+    check_call(['sudo', './install.sh'], cwd=driver_dir)
 
 
 def uninstall_module(args):
     print("This will require superuser privileges; sudo will be called.")
     driver_dir = os.path.join(ROOT, "src", "driver")
-    subprocess.check_call(['sudo', './uninstall.sh'], cwd=driver_dir)
+    check_call(['sudo', './uninstall.sh'], cwd=driver_dir)
 
 
 def run_tests(args):

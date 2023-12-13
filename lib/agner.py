@@ -2,12 +2,13 @@ from __future__ import print_function
 import glob
 import imp
 import os
-import subprocess
 import sys
 from argparse import ArgumentParser
-
+from call import check_call, check_output
 
 THIS_DIR = os.path.dirname(os.path.realpath(__file__))
+# so it can find `call.py`
+sys.path.extend([THIS_DIR, os.path.dirname(THIS_DIR)])
 
 
 def filter_match(tests, test, subtest):
@@ -70,7 +71,7 @@ class Agner(object):
 def run_test(test, counters, init_once="", init_each="", repetitions=3, procs=1):
     os.chdir(os.path.join(THIS_DIR, "..", "src"))
     sys.stdout.flush()
-    subprocess.check_call(["make", "-s", "out/a64.o"])
+    check_call(["make", "-s", "out/a64.o"])
 
     with open("out/counters.inc", "w") as cf:
         [cf.write("    DD %d\n" % counter) for counter in counters]
@@ -84,7 +85,7 @@ def run_test(test, counters, init_once="", init_each="", repetitions=3, procs=1)
     with open("out/init_each.inc", "w") as init_f:
         init_f.write(init_each)
 
-    subprocess.check_call([
+    check_call([
         "nasm", "-f", "elf64", 
         "-l", "out/b64.lst",
         "-I", "out/",
@@ -92,8 +93,8 @@ def run_test(test, counters, init_once="", init_each="", repetitions=3, procs=1)
         "-D", "REPETITIONS=%d" % repetitions,
         "-D", "NUM_THREADS=%d" % procs,
         "PMCTestB64.nasm"])
-    subprocess.check_call(["g++", "-o", "out/test", "out/a64.o", "out/b64.o", "-lpthread"])
-    result = subprocess.check_output(["out/test"])
+    check_call(["g++", "-o", "out/test", "out/a64.o", "out/b64.o", "-lpthread"])
+    result = check_output(["out/test"])
     results = []
     header = None
     for line in result.split("\n"):

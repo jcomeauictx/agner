@@ -1,5 +1,5 @@
 ;----------------------------------------------------------------------------
-;                        PMCTestB64.nasm              © 2013-08-20 Agner Fog
+;                        PMCTestB64.nasm              (C) 2013-08-20 Agner Fog
 ;
 ;                PMC Test program for multiple threads
 ;                           NASM syntax
@@ -387,8 +387,6 @@ TEST_LOOP_2:
 
 ; Put the assembly code to test here
 ; Don't modify r13, r14, r15!
-
-; ½½
 
 
 mov ebp, 100
