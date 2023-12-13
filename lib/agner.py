@@ -1,3 +1,4 @@
+from __future__ import print_function
 import glob
 import imp
 import os
@@ -51,7 +52,7 @@ class Agner(object):
             results[test] = {}
             for subtest, tester in subtests.iteritems():
                 if not filter_match(tests, test, subtest): continue
-                print "Running %s.%s ..." % (test, subtest)
+                print("Running %s.%s ..." % (test, subtest))
                 results[test][subtest] = tester.runner()
         return results
 
@@ -121,7 +122,7 @@ def merge_results(previous, new, threshold=0.15):
             if key in new_item:
                 delta = abs(prev_item[key] - new_item[key])
                 delta_ratio = delta / float(prev_item[key])
-                print key, delta_ratio
+                print(key, delta_ratio)
                 if delta_ratio > threshold:
                     raise MergeError("Unable to get a stable merge for " + key)  # TODO better
         for key in new_item.iterkeys():
@@ -133,4 +134,4 @@ def merge_results(previous, new, threshold=0.15):
 def print_test(*args, **kwargs):
     results = run_test(*args, **kwargs)
     for result in results:
-        print result
+        print(result)
