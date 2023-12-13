@@ -11,6 +11,7 @@ from call import check_call
 import sys
 from argparse import ArgumentParser
 from lib.agner import Agner
+from _tkinter import TclError
 
 ROOT = os.path.dirname(os.path.realpath(__file__))
 TEST_PYS = sorted([os.path.splitext(os.path.basename(x))[0] for x in glob.glob(os.path.join(ROOT, 'tests', '*.py'))])
@@ -43,11 +44,13 @@ def run_tests(args):
     results = None
     with open(args.results_file, 'w') as out:
         results = AGNER.run_tests(args.test)
+        json.dump(results, out)
     try:
         AGNER.plot_results(results, args.test, args.alternative)
         plt.show()
-    except:
-        raise  # FIXME: find out what the exception is and correct this
+    except TclError:
+        logging.fatal('Could not launch display: is Xwindows available?')
+        raise
 
 def test_only(args):
     if not os.path.exists("/dev/MSRdrv"):
