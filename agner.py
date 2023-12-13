@@ -40,10 +40,14 @@ def run_tests(args):
     if not os.path.exists("/dev/MSRdrv"):
         print("The performance counter driver is not loaded - please run 'agner install'")
         sys.exit(1)
-    results = AGNER.run_tests(args.test)
-    AGNER.plot_results(results, args.test, args.alternative)
-    plt.show()
-
+    results = None
+    with open(args.results_file, 'w') as out:
+        results = AGNER.run_tests(args.test)
+    try:
+        AGNER.plot_results(results, args.test, args.alternative)
+        plt.show()
+    except:
+        raise  # FIXME: find out what the exception is and correct this
 
 def test_only(args):
     if not os.path.exists("/dev/MSRdrv"):
