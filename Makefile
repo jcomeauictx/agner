@@ -4,9 +4,16 @@ HAVE_GETTID_IN_UNISTD_H ?= 1
 ifeq ($(HAVE_GETTID_IN_UNISTD_H),1)
  export CXXFLAGS += -DHAVE_GETTID_IN_UNISTD_H=1
 endif
-export BITS ?= 32
+ifeq ($(shell uname -m),x86_64)
+ BITS ?= 64
+else
+ BITS ?= 32
+endif
+export BITS
 all: agner src/PMCTestA /dev/MSRdrv
 	$(PYTHON) $< run
+env:
+	$@
 %: %.cpp
 	$(MAKE) -C $(<D) $(@F)
 test: tests
