@@ -93,8 +93,9 @@ static inline int Readpmc(int nPerfCtr) {
 
 // Declare the gettid syscall.
 //_syscall0(pid_t, gettid);
+#ifndef HAVE_GETTID_IN_UNISTD_H
 static inline pid_t gettid(void) { return syscall(__NR_gettid); }
-
+#endif
 
 // Function declaration for thread procedure
 #define ThreadProcedureDeclaration(Name) void* Name(void * parm)
