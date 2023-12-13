@@ -93,7 +93,7 @@ def run_test(test, counters, init_once="", init_each="", repetitions=3, procs=1)
         "-D", "REPETITIONS=%d" % repetitions,
         "-D", "NUM_THREADS=%d" % procs,
         "PMCTestB64.nasm"])
-    check_call(["g++", "-o", "out/test", "out/a64.o", "out/b64.o", "-lpthread"])
+    check_call(["g++", "-z", "noexecstack", "-o", "out/test", "out/a64.o", "out/b64.o", "-lpthread"])
     result = check_output(["out/test"])
     results = []
     header = None
