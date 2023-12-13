@@ -4,6 +4,7 @@ HAVE_GETTID_IN_UNISTD_H ?= 1
 ifeq ($(HAVE_GETTID_IN_UNISTD_H),1)
  export CXXFLAGS += -DHAVE_GETTID_IN_UNISTD_H=1
 endif
+export BITS ?= 32
 all: agner src/PMCTestA /dev/MSRdrv
 	$(PYTHON) $< run
 %: %.cpp
@@ -17,5 +18,7 @@ test: tests
 	sudo rm -f $@
 	sudo mknod $@ c 249 0
 	sudo chmod 666 $@
-	sudo insmod -f $<
+	-sudo insmod -f $<
+clean: src/Makefile src/driver/Makefile
+	for file in $+; do $(MAKE) -C $$(dirname $$file) clean; done
 .FORCE:
