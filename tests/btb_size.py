@@ -4,6 +4,9 @@ from __future__ import print_function
 import os
 import sys
 
+THIS_DIR = os.path.dirname(os.path.realpath(__file__))
+sys.path.extend([THIS_DIR, os.path.dirname(THIS_DIR)])
+
 from lib.agner import *
 
 def btb_size_test(name, num_branches, align):

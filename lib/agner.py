@@ -10,9 +10,6 @@ from _tkinter import TclError
 logging.basicConfig(level=logging.DEBUG if __debug__ else logging.WARNING)
 
 THIS_DIR = os.path.dirname(os.path.realpath(__file__))
-# so it can find `call.py`
-sys.path.extend([THIS_DIR, os.path.dirname(THIS_DIR)])
-
 
 def filter_match(tests, test, subtest):
     # Somewhat ropey 'wildcard' matching
