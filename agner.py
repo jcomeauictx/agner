@@ -86,9 +86,7 @@ def plot(args):
         try:
             plt.show()
         except TclError as failed:
-            logging.fatal('Failed plot: %s: %s', failed, vars(failed))
-            raise
-
+            logging.fatal('Failed plot: %s', failed)
 
 def list_tests(args):
     for test in AGNER.tests():

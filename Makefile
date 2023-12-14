@@ -12,10 +12,8 @@ else
 endif
 export BITS CXXFLAGS
 all: src/PMCTestA /dev/MSRdrv run
-run: agner
-	$(PYTHON) $< run
-plot: agner
-	$(PYTHON) $< plot
+plot run list test_only install uninstall: agner
+	$(PYTHON) $< $@
 env:
 	$@
 %: %.cpp
