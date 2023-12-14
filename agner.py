@@ -3,15 +3,13 @@
 run Agner Fog's tests
 '''
 from __future__ import print_function
+import sys
+import os
 import glob
 import imp
 import json
-import os
-from call import check_call
-import sys
 from argparse import ArgumentParser
-from lib.agner import Agner
-from _tkinter import TclError
+from lib.agner import Agner, logging, TclError, check_call, check_output
 
 ROOT = os.path.dirname(os.path.realpath(__file__))
 TEST_PYS = sorted([os.path.splitext(os.path.basename(x))[0] for x in glob.glob(os.path.join(ROOT, 'tests', '*.py'))])
@@ -48,9 +46,10 @@ def run_tests(args):
     try:
         AGNER.plot_results(results, args.test, args.alternative)
         plt.show()
-    except TclError:
+    except TclError as failed:
         logging.fatal('Could not launch display: is Xwindows available?')
-        raise
+        logging.fatal('%s', failed)
+        sys.exit(1)
 
 def test_only(args):
     if not os.path.exists("/dev/MSRdrv"):
@@ -84,7 +83,11 @@ def plot(args):
         AGNER.plot_results(results, args.test, args.alternative, save_pic)
     else:
         AGNER.plot_results(results, args.test, args.alternative)
-        plt.show()
+        try:
+            plt.show()
+        except TclError as failed:
+            logging.fatal('Failed plot: %s: %s', failed, vars(failed))
+            raise
 
 
 def list_tests(args):

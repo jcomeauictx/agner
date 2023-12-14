@@ -3,8 +3,10 @@ import glob
 import imp
 import os
 import sys
+import logging
 from argparse import ArgumentParser
-from call import check_call, check_output
+from _tkinter import TclError
+logging.basicConfig(level=logging.DEBUG if __debug__ else logging.WARNING)
 
 THIS_DIR = os.path.dirname(os.path.realpath(__file__))
 # so it can find `call.py`
@@ -136,3 +138,17 @@ def print_test(*args, **kwargs):
     results = run_test(*args, **kwargs)
     for result in results:
         print(result)
+
+def check_call(*args, **kwargs):
+    '''
+    use subprocess `check_call` but show what's going on
+    '''
+    logging.debug('call: %s', args)
+    return subprocess.check_call(*args, **kwargs)
+
+def check_output(*args, **kwargs):
+    '''
+    use subprocess `check_call` but show what's going on
+    '''
+    logging.debug('call: %s', args)
+    return subprocess.check_output(*args, **kwargs)

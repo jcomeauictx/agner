@@ -11,8 +11,11 @@ else
  BITS ?= 32
 endif
 export BITS CXXFLAGS
-all: agner src/PMCTestA /dev/MSRdrv
+all: src/PMCTestA /dev/MSRdrv run
+run: agner
 	$(PYTHON) $< run
+plot: agner
+	$(PYTHON) $< plot
 env:
 	$@
 %: %.cpp
@@ -23,10 +26,11 @@ test: tests
 	$(MAKE) -C $(<D)
 /dev/MSRdrv: src/driver/MSRdrv.ko .FORCE
 	# from src/driver/install.sh
+	sudo rmmod -f $(@F)
 	sudo rm -f $@
 	sudo mknod $@ c 249 0
 	sudo chmod 666 $@
-	-sudo insmod -f $<
+	sudo insmod -f $<
 clean: src/Makefile src/driver/Makefile
 	for file in $+; do $(MAKE) -C $$(dirname $$file) clean; done
 .FORCE:

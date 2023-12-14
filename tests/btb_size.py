@@ -2,11 +2,9 @@
 
 from __future__ import print_function
 import os
-import subprocess
 import sys
 
 from lib.agner import *
-
 
 def btb_size_test(name, num_branches, align):
     test_code = """
@@ -75,7 +73,11 @@ def btb_test(nums, aligns, name):
 
 def btb_plot(nums, aligns, name, results, alt):
     import matplotlib.pyplot as plt
-    fig = plt.figure()
+    try:
+        fig = plt.figure()
+    except TclError as failed:
+        logging.fatal('Failed plt.figure(): %s', failed)
+        sys.exit(1)
     locs, labels = plt.xticks()
     plt.setp(labels, rotation=90)
     plt.title(name)
