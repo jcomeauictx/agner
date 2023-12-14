@@ -124,10 +124,7 @@ The driver is not needed if you set USE_PERFORMANCE_COUNTERS to 0 in the B file.
 
 Installing the driver in Linux:
 -------------------------------
-Unpack DriverSrcLinux.zip into an empty folder. Then:
-make
-chmod 744 install.sh
-sudo ./install.sh
+make install
 
 See DriverSrcLinux.txt for details. You need to reinstall after reboot.
 

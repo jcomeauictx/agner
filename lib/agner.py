@@ -4,6 +4,7 @@ import imp
 import os
 import sys
 import logging
+import subprocess
 from argparse import ArgumentParser
 from _tkinter import TclError
 logging.basicConfig(level=logging.DEBUG if __debug__ else logging.WARNING)

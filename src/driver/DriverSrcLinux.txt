@@ -6,9 +6,7 @@ the following commands. Must reinstall after reboot.
 The driver has only been tested in Ubuntu.
 
 
-make
-chmod 744 *.sh
-sudo ./install.sh
+make install
 
 
 In some older systems you may need to replace MSRdrv.c with MSRdrv1.c if
@@ -21,15 +19,3 @@ sudo ln -s /usr/src/linux-headers-`uname -r` /lib/modules/`uname -r`/build
 Or if the target doesn't exist, e.g.:
 
 sudo ln -s /usr/src/linux-headers-2.6.24-23-server /lib/modules/`uname -r`/build
-
-
-install.sh:
-
-	mknod /dev/MSRdrv c 222 0
-	chmod 666 /dev/MSRdrv
-	insmod -f MSRdrv.ko
-	
-uninstall.sh:
-
-	rm -f /dev/MSRdrv
-	rmmod MSRdrv

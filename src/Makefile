@@ -15,3 +15,7 @@ out/a$(BITS).o: PMCTestA.cpp *.h $(DRIVER_SRC)/*.h | out
 	g++ -O2 -c $(CXXFLAGS) -o $@ $< $(INCLUDES)
 %: %.cpp
 	g++ -O2 -c $(CXXFLAGS) -o $@ $< $(INCLUDES)
+clean:
+	rm -f out/*
+distclean: clean
+	rm -f PMCTestA

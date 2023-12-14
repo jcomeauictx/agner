@@ -11,8 +11,8 @@ else
  BITS ?= 32
 endif
 export BITS CXXFLAGS
-all: src/PMCTestA /dev/MSRdrv run
-plot run list test_only install uninstall: agner
+all: src/PMCTestA run
+plot run list test_only: agner /dev/MSRdrv
 	$(PYTHON) $< $@
 env:
 	$@
@@ -22,13 +22,14 @@ test: tests
 	$(PYTHON) $</branch.py
 %.ko: %.c
 	$(MAKE) -C $(<D)
-/dev/MSRdrv: src/driver/MSRdrv.ko .FORCE
-	# from src/driver/install.sh
-	sudo rmmod -f $(@F)
-	sudo rm -f $@
-	sudo mknod $@ c 249 0
-	sudo chmod 666 $@
-	sudo insmod -f $<
 clean: src/Makefile src/driver/Makefile
-	for file in $+; do $(MAKE) -C $$(dirname $$file) clean; done
+	for file in $+; do $(MAKE) -C $$(dirname $$file) $@; done
+distclean: src/Makefile src/driver/Makefile
+	rm -f results.json
+	for file in $+; do $(MAKE) -C $$(dirname $$file) $@; done
+install: /dev/MSRdrv .FORCE
+uninstall:
+	$(MAKE) -C src/driver $@
+/dev/MSRdrv:
+	$(MAKE) -C src/driver $@
 .FORCE:

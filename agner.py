@@ -24,14 +24,13 @@ for test in set(TEST_PYS):
 def install_module(args):
     print("This will require superuser privileges; sudo will be called.")
     driver_dir = os.path.join(ROOT, "src", "driver")
-    check_call(["make"], cwd=driver_dir)
-    check_call(['sudo', './install.sh'], cwd=driver_dir)
+    check_call(['make', 'install'], cwd=driver_dir)
 
 
 def uninstall_module(args):
     print("This will require superuser privileges; sudo will be called.")
     driver_dir = os.path.join(ROOT, "src", "driver")
-    check_call(['sudo', './uninstall.sh'], cwd=driver_dir)
+    check_call(['make', 'uninstall'], cwd=driver_dir)
 
 
 def run_tests(args):
