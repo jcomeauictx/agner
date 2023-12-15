@@ -7,7 +7,8 @@ KERNELDIR := /lib/modules/`uname -r`/build
 obj-m := MSRdrv.o
 PWD := $(shell pwd)
 
-default:
+all default: /dev/MSRdrv install
+MSRdrv.ko: MSRdrv.c MSRdrvL.h
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
     
 #$(MAKE) -C $(KERNELDIR) SUBDIRS=$(PWD) modules    
@@ -16,12 +17,22 @@ clean:
 	rm -f .MSRdrv.*
 	rm -f -r .tmp_versions
 	rm -f *~
-	rm -f MSRdrv.ko
 	rm -f MSRdrv.o
 	rm -f MSRdrv.mod.*
 	rm -f linux.mdl
 	rm -f Modules.symvers
+distclean: clean
+	rm -f MSRdrv.ko
     
-install:
-	./install.sh
-    
+/dev/MSRdrv: MSRdrv.ko .FORCE
+	# from src/driver/install.sh
+	$(MAKE) uninstall
+	sudo mknod $@ c 249 0
+	sudo chmod 666 $@
+	sudo insmod -f $<
+install: /dev/MSRdrv .FORCE
+	true  # keeps GNU make from `cat install.sh >install; chmod +x install`
+uninstall:
+	sudo rm -f /dev/MSRdrv
+	-sudo rmmod MSRdrv
+.FORCE:
