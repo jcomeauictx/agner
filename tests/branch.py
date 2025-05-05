@@ -70,7 +70,7 @@ align 16
             for counters in ([1, 9, 207, 400], [1, 9, 401, 402], [1, 9, 404]):
                 results = merge_results(results, run_test(test_code, counters, init_each=SCRAMBLE_BTB))
             return results
-        except MergeError, e:
+        except MergeError as e:
             merge_error = e
     raise merge_error
 
