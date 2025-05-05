@@ -19,6 +19,26 @@ def filter_match(tests, test, subtest):
         if match == '%s.*' % (test,): return True
     return False
 
+def iteritems(some_dict):
+    '''
+    use items() where available
+    '''
+    try:
+        return some_dict.items()
+    except AttributeError:
+        return some_dict.iteritems()
+
+def split(string_or_bytes, delimiter):
+    '''
+    split string_or_bytes whether delimiter is either
+    '''
+    try:
+        return string_or_bytes.split(delimiter)
+    except TypeError:
+        if hasattr(string_or_bytes, 'encode'):
+            return string_or_bytes.split(delimiter.decode())
+        else:
+            return string_or_bytes.split(delimiter.encode())
 
 class Test(object):
     def __init__(self, name, runner, plotter):
@@ -49,9 +69,9 @@ class Agner(object):
 
     def run_tests(self, tests):
         results = {}
-        for test, subtests in self._tests.iteritems():
+        for test, subtests in iteritems(self._tests):
             results[test] = {}
-            for subtest, tester in subtests.iteritems():
+            for subtest, tester in iteritems(subtests):
                 if not filter_match(tests, test, subtest): continue
                 print("Running %s.%s ..." % (test, subtest))
                 results[test][subtest] = tester.runner()
@@ -59,8 +79,8 @@ class Agner(object):
 
     def plot_results(self, results, tests, alternative, callback=None):
         import matplotlib.pyplot as plt
-        for test, subtests in results.iteritems():
-            for subtest, result in subtests.iteritems():
+        for test, subtests in iteritems(results):
+            for subtest, result in iteritems(subtests):
                 if not filter_match(tests, test, subtest): continue
                 tester = self._tests[test][subtest]
                 tester.plotter(result, alternative)
@@ -97,14 +117,14 @@ def run_test(test, counters, init_once="", init_each="", repetitions=3, procs=1)
     result = check_output(["out/test"])
     results = []
     header = None
-    for line in result.split("\n"):
+    for line in split(result, "\n"):
         line = line.strip()
         if not line: continue
-        split = line.split(",")
+        splitted = split(line, ",")
         if not header:
-            header = split
+            header = splitted
         else:
-            results.append(dict(zip(header, [int(x) for x in split])))
+            results.append(dict(zip(header, [int(x) for x in splitted])))
     return results
 
 
