@@ -124,6 +124,7 @@ def run_test(test, counters, init_once="", init_each="", repetitions=3, procs=1)
         if not header:
             header = splitted
         else:
+            logging.debug('header: %r, splitted: %r', header, splitted)
             results.append(dict(zip(header, [int(x) for x in splitted])))
     return results
 
