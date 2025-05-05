@@ -150,3 +150,4 @@ def check_output(*args, **kwargs):
     '''
     logging.debug('call: %s', args)
     return subprocess.check_output(*args, **kwargs)
+# vim: tabstop=8 expandtab softtabstop=4 shiftwidth=4

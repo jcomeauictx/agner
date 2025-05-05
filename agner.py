@@ -7,10 +7,17 @@ import sys
 import os
 import json
 from glob import glob
+# https://docs.python.org/3/whatsnew/3.12.html#imp
 try:
-	from imp import load_source
+    from imp import load_source
 except ImportError:
-	from importlib.machinery import SourceFileLoader as load_source
+    from importlib import util, machinery
+    def load_source(modname, filename):
+        loader = machinery.SourceFileLoader(modname, filename)
+        spec = util.spec_from_file_location(modname, filename, loader=loader)
+        module = util.module_from_spec(spec)
+        loader.exec_module(module)
+        return module
 from argparse import ArgumentParser
 from lib.agner import Agner, logging, TclError, check_call, check_output
 
@@ -122,3 +129,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     COMMANDS[args.command[0]](args)
+# vim: tabstop=8 expandtab softtabstop=4 shiftwidth=4
