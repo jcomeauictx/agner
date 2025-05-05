@@ -5,19 +5,22 @@ run Agner Fog's tests
 from __future__ import print_function
 import sys
 import os
-import glob
-import imp
 import json
+from glob import glob
+try:
+	from imp import load_source
+except ImportError:
+	from importlib.machinery import SourceFileLoader as load_source
 from argparse import ArgumentParser
 from lib.agner import Agner, logging, TclError, check_call, check_output
 
 ROOT = os.path.dirname(os.path.realpath(__file__))
-TEST_PYS = sorted([os.path.splitext(os.path.basename(x))[0] for x in glob.glob(os.path.join(ROOT, 'tests', '*.py'))])
+TEST_PYS = sorted([os.path.splitext(os.path.basename(x))[0] for x in glob(os.path.join(ROOT, 'tests', '*.py'))])
 AGNER = Agner()
 
 
 for test in set(TEST_PYS):
-    test_module = imp.load_source(test, os.path.join(ROOT, 'tests', test + ".py"))
+    test_module = load_source(test, os.path.join(ROOT, 'tests', test + ".py"))
     AGNER.add_tests(test, test_module)
 
 

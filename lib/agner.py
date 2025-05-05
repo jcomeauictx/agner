@@ -1,12 +1,12 @@
 from __future__ import print_function
 import glob
-import imp
 import os
 import sys
 import logging
 import subprocess
 from argparse import ArgumentParser
 from _tkinter import TclError
+
 logging.basicConfig(level=logging.DEBUG if __debug__ else logging.WARNING)
 
 THIS_DIR = os.path.dirname(os.path.realpath(__file__))
