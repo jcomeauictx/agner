@@ -116,7 +116,10 @@ def run_test(test, counters, init_once="", init_each="", repetitions=3, procs=1)
     header = None
     for line in result.split('\n'):
         line = line.strip().rstrip(',')
-        if not line or 'No matching counter' in line:
+        if not line:
+            continue
+        if 'No matching counter' in line:
+            logging.error(line)
             continue
         splitted = line.split(',')
         if not header:
