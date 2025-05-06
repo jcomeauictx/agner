@@ -113,3 +113,4 @@ def add_tests(agner):
     add_test(agner, "Behind not taken", "jne $-4")
     add_test(agner, "Ahead taken", "je $+4")
     add_test(agner, "Behind taken", "je $-16-8", True)
+# vim: tabstop=8 expandtab softtabstop=4 shiftwidth=4
