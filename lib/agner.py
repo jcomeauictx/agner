@@ -162,7 +162,7 @@ def merge_results(previous, new, threshold=0.15):
                 delta_ratio = delta / float(prev_item[key])
                 print(key, delta_ratio)
                 if delta_ratio > threshold:
-                    raise MergeError("Unable to get a stable merge for " + key)  # TODO better
+                    logging.error("Unable to get a stable merge for %r", key)  # TODO better
         for key in iterkeys(new_item):
             if key not in prev_item:
                 prev_item[key] = new_item[key]
