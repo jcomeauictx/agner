@@ -111,14 +111,14 @@ def run_test(test, counters, init_once="", init_each="", repetitions=3, procs=1)
         "-D", "NUM_THREADS=%d" % procs,
         "PMCTestB64.nasm"])
     check_call(["g++", "-z", "noexecstack", "-o", "out/test", "out/a64.o", "out/b64.o", "-lpthread"])
-    result = check_output(["out/test"])
+    result = check_output(["out/test"]).decode()
     results = []
     header = None
-    for line in result.split(b'\n'):
-        line = line.strip().rstrip(b',')
-        if not line or b'No matching counter' in line:
+    for line in result.split('\n'):
+        line = line.strip().rstrip(',')
+        if not line or 'No matching counter' in line:
             continue
-        splitted = line.split(b',')
+        splitted = line.split(',')
         if not header:
             header = splitted
             logging.debug('setting header to %r, discarding result %r',
