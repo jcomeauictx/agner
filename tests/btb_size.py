@@ -29,11 +29,7 @@ nop
 %endrep
 """.format(num_branches=num_branches, align=align)
     r = run_test(test_code, [1, 410, 403, 404], repetitions=100)
-    try:
-        return min(r, key=lambda x: x['BaClrAny'])
-    except KeyError as problem:
-        logging.error('ignoring unexpected result %r: %s', r, problem)
-        return 0
+    return min(r, key=lambda x: x.get('BaClrAny', sys.maxsize))
 
 def plot(xs, ys, result, name, index):
     import numpy as np
@@ -71,13 +67,10 @@ def btb_test(nums, aligns, name):
             res = btb_size_test("BTB size test %d branches aligned on %d" % (num, align), num, align)
             logging.debug('num: %r, res: %r', num, res)
             exp = num * 100.0 # number of branches under test
-            try:
-                resteer[-1].append(res['BaClrAny'] / exp)
-                early[-1].append(res['BaClrEly'] / exp)
-                late[-1].append(res['BaClrL8'] / exp)
-                core[-1].append(res['Core cyc'] / exp)
-            except (TypeError, KeyError):
-                logging.error('ignoring result %r from num %r', res, num)
+            resteer[-1].append(res.get('BaClrAny', sys.maxsize) / exp)
+            early[-1].append(res.get('BaClrEly', sys.maxsize) / exp)
+            late[-1].append(res.get('BaClrL8', sys.maxsize) / exp)
+            core[-1].append(res.get('Core cyc', sys.maxsize) / exp)
     return {'resteer': resteer, 'early': early, 'late': late, 'core': core}
 
 
