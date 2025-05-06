@@ -483,7 +483,7 @@ const char * CCounters::DefineCounter(int CounterType) {
             break;
         }
     }
-    if (i >= NumCounterDefinitions) return "No matching counter definition found"; // not found in list
+    if (i >= NumCounterDefinitions) return "No matching counter definition found (src/PMCTestA.cpp)"; // not found in list
     return DefineCounter(*p);
 }
 

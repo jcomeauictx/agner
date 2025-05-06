@@ -812,7 +812,7 @@ const char * CCounters::DefineCounter(int CounterType) {
     }
     if (i >= NumCounterDefinitions) {
         //printf("\nCounterType = %X, MScheme = %X, MFamily = %X\n", CounterType, MScheme, MFamily);
-        return "No matching counter definition found"; // not found in list
+        return "No matching counter definition found (PMCTest/PMCTestA.cpp)"; // not found in list
     }
     return DefineCounter(*p);
 }
