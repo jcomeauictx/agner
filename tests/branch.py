@@ -78,9 +78,9 @@ align 16
 def branch_plot(name, results):
     if not results: return
     for res in results:
-        del res['Clock']
-        del res['Instruct']
-        del res['Core cyc']
+        for key in ['Clock', 'Instruct', 'Core cyc']:
+            if key in res:
+                del res[key]
     import matplotlib.pyplot as plt
     from matplotlib.pyplot import cm
     import numpy as np
