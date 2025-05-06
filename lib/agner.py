@@ -37,18 +37,6 @@ def iterkeys(some_dict):
     except AttributeError:
         return some_dict.iterkeys()
 
-def split(string_or_bytes, delimiter):
-    '''
-    split string_or_bytes whether delimiter is either
-    '''
-    try:
-        return string_or_bytes.split(delimiter)
-    except TypeError:
-        if hasattr(string_or_bytes, 'encode'):
-            return string_or_bytes.split(delimiter.decode())
-        else:
-            return string_or_bytes.split(delimiter.encode())
-
 class Test(object):
     def __init__(self, name, runner, plotter):
         self.name = name
@@ -126,11 +114,11 @@ def run_test(test, counters, init_once="", init_each="", repetitions=3, procs=1)
     result = check_output(["out/test"])
     results = []
     header = None
-    for line in split(result, "\n"):
-        line = line.strip()
+    for line in result.split(b'\n'):
+        line = line.strip().rstrip(b',')
         if not line or b'No matching counter' in line:
             continue
-        splitted = split(line, ",")
+        splitted = line.split(b',')
         if not header:
             header = splitted
             logging.debug('setting header to %r, discarding result %r',
