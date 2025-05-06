@@ -123,9 +123,15 @@ def run_test(test, counters, init_once="", init_each="", repetitions=3, procs=1)
         splitted = split(line, ",")
         if not header:
             header = splitted
+            logging.debug('setting header to %r, discarding result %r',
+                          header, splitted)
         else:
             logging.debug('header: %r, splitted: %r', header, splitted)
-            results.append(dict(zip(header, [int(x) for x in splitted])))
+            try:
+                results.append(dict(zip(header, [int(x) for x in splitted])))
+            except ValueError as problem:
+                logging.error(problem)
+                results.append([0, 0])
     return results
 
 
