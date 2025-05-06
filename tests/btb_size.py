@@ -29,8 +29,11 @@ nop
 %endrep
 """.format(num_branches=num_branches, align=align)
     r = run_test(test_code, [1, 410, 403, 404], repetitions=100)
-    return min(r, key=lambda x: x['BaClrAny'])
-
+    try:
+        return min(r, key=lambda x: x['BaClrAny'])
+    except KeyError as problem:
+        logging.error('ignoring unexpected result %r: %s', r, problem)
+        return 0
 
 def plot(xs, ys, result, name, index):
     import numpy as np
@@ -66,11 +69,15 @@ def btb_test(nums, aligns, name):
         core.append([])
         for num in nums:
             res = btb_size_test("BTB size test %d branches aligned on %d" % (num, align), num, align)
+            logging.debug('num: %r, res: %r', num, res)
             exp = num * 100.0 # number of branches under test
-            resteer[-1].append(res['BaClrAny'] / exp)
-            early[-1].append(res['BaClrEly'] / exp)
-            late[-1].append(res['BaClrL8'] / exp)
-            core[-1].append(res['Core cyc'] / exp)
+            try:
+                resteer[-1].append(res['BaClrAny'] / exp)
+                early[-1].append(res['BaClrEly'] / exp)
+                late[-1].append(res['BaClrL8'] / exp)
+                core[-1].append(res['Core cyc'] / exp)
+            except (TypeError, KeyError):
+                logging.error('ignoring result %r from num %r', res, num)
     return {'resteer': resteer, 'early': early, 'late': late, 'core': core}
 
 
@@ -112,3 +119,4 @@ def add_tests(agner):
 
     # attempt to find number of addr bits : two branches very spread
     add_test(agner, [2], [2**x for x in range(6, 28)], "Number of address bits for set")
+# vim: tabstop=8 expandtab softtabstop=4 shiftwidth=4
