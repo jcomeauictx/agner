@@ -16,7 +16,6 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <pthread.h>
-#include <linux/unistd.h>  // __NR_gettid
 #include <stdio.h>
 
 #include "MSRdrvL.h" // shared with driver
@@ -93,9 +92,20 @@ static inline int Readpmc(int nPerfCtr) {
 
 // Declare the gettid syscall.
 //_syscall0(pid_t, gettid);
-#ifndef HAVE_GETTID_IN_UNISTD_H
-static inline pid_t gettid(void) { return syscall(__NR_gettid); }
+//#ifndef HAVE_GETTID_IN_UNISTD_H
+//#include <linux/unistd.h>  // __NR_gettid
+//static inline pid_t gettid(void) { return syscall(__NR_gettid); }
+//#endif
+// fix for gettid() not defined in this scope
+// https://stackoverflow.com/a/63494768/493161
+#if !defined(HAVE_GETTID_IN_UNISTD_H) || __GLIBC__ == 2 && __GLIBC_MINOR__ < 30
+#pragma message("redefining gettid() to avoid buggy compiler")
+#include <sys/syscall.h>
+#define gettid() syscall(SYS_gettid)
+#else
+#pragma message("gettid() should compile without error")
 #endif
+
 
 // Function declaration for thread procedure
 #define ThreadProcedureDeclaration(Name) void* Name(void * parm)
