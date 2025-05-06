@@ -28,6 +28,15 @@ def iteritems(some_dict):
     except AttributeError:
         return some_dict.iteritems()
 
+def iterkeys(some_dict):
+    '''
+    use keys() where available
+    '''
+    try:
+        return some_dict.keys()
+    except AttributeError:
+        return some_dict.iterkeys()
+
 def split(string_or_bytes, delimiter):
     '''
     split string_or_bytes whether delimiter is either
@@ -119,7 +128,8 @@ def run_test(test, counters, init_once="", init_each="", repetitions=3, procs=1)
     header = None
     for line in split(result, "\n"):
         line = line.strip()
-        if not line: continue
+        if not line or b'No matching counter' in line:
+            continue
         splitted = split(line, ",")
         if not header:
             header = splitted
@@ -146,14 +156,14 @@ def merge_results(previous, new, threshold=0.15):
     for index in range(len(previous)):
         prev_item = previous[index]
         new_item = new[index]
-        for key in prev_item.iterkeys():
+        for key in iterkeys(prev_item):
             if key in new_item:
                 delta = abs(prev_item[key] - new_item[key])
                 delta_ratio = delta / float(prev_item[key])
                 print(key, delta_ratio)
                 if delta_ratio > threshold:
                     raise MergeError("Unable to get a stable merge for " + key)  # TODO better
-        for key in new_item.iterkeys():
+        for key in iterkeys(new_item):
             if key not in prev_item:
                 prev_item[key] = new_item[key]
     return previous
