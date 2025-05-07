@@ -18,3 +18,6 @@ Based very heavily on [Agner Fog](http://www.agner.org)'s [test programs](http:/
   * lib/agner.py: `with open("out/counters.inc", "w") as cf: ...`
   * src/PMCTestB64.nasm: `%include "counters.inc"`
   In any case, on my (AMD based) machine, none of those 4 counters are found.
+* if PMCTestA fails to compile due to "'bits/wordsize.h' file not found",
+  as it bizarrely did one time,
+  [sudo apt install libc6-dev-i386](https://bugs.launchpad.net/ubuntu/+source/glibc/+bug/2067082) equally bizarrely fixed it.
