@@ -102,7 +102,7 @@ def branch_plot(name, results):
     ax.set_ylabel("Count")
     ax.set_xlabel("Run #")
     ax.set_title(name)
-    ax.legend((x[0] for x in rects), results[0].keys())
+    ax.legend([x[0] for x in rects], results[0].keys())
 
 
 def add_test(agner, name, instr, backwards=False):
