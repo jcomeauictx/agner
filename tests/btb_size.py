@@ -39,7 +39,10 @@ def plot(xs, ys, result, name, index):
         ax = plt.subplot(2, 2, index)
     else:
         ax = plt.subplot(1, 1, 1)
-    ax.set_yscale('log', basey=2)
+    try:
+        ax.set_yscale('log', basey=2)
+    except TypeError:
+        ax.set_yscale('log', base=2)
     plt.title(name)
     
     plt.xlabel("Branch count")
