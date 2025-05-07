@@ -6,7 +6,8 @@ TIMESTAMP := $(shell date '+%Y%m%d%H%M%S')
 all: src/PMCTestA run
 plot run list test_only: agner /dev/MSRdrv
 	$(PYTHON) $< $@ 2>&1 | tee $<_$@.$(TIMESTAMP).log
-	@echo see $<_$@.$(TIMESTAMP).log for debugging
+	ln -sf $<_$@.$(TIMESTAMP).log $<_$@.log
+	@echo see $<_$@.log for debugging
 env:
 	$@
 %: %.cpp
@@ -19,6 +20,7 @@ test:
 	$(MAKE) -C $(<D)
 clean: src/Makefile src/driver/Makefile
 	for file in $+; do $(MAKE) -C $$(dirname $$file) $@; done
+	rm -f *.log
 distclean: src/Makefile src/driver/Makefile
 	rm -f results.json
 	for file in $+; do $(MAKE) -C $$(dirname $$file) $@; done
