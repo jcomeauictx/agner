@@ -269,7 +269,7 @@ void CCounters::QueueCounters() {
             CounterType = CounterTypesDesired[i];
             err = DefineCounter(CounterType);
             if (err) {
-                printf("\nCannot make counter %i. %s\n", i+1, err);
+                printf("\nCannot make counter %d. %s\n", CounterType, err);
             }
         }  
     }
