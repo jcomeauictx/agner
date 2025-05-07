@@ -61,8 +61,10 @@ enum EProcVendor {VENDOR_UNKNOWN = 0, INTEL, AMD, VIA};
 
 // codes for processor family
 enum EProcFamily {
-    P_UNKNOWN    = 0,                       // unknown. can't do performance monitoring
-    P_ALL = 0xFFFFFFFF,                     // All processors with the specified scheme
+    // renamed P_UNKNOWN to PRUNKNOWN as Agner did in newer version
+    PRUNKNOWN    = 0,                       // unknown. can't do performance monitoring
+    // renaming P_ALL to PRALL as Agner did for newer version
+    PRALL = 0xFFFFFFFF,                     // All processors with the specified scheme
     INTEL_P1MMX  = 1,                       // Intel Pentium 1 or Pentium MMX
     INTEL_P23    = 2,                       // Pentium Pro, Pentium 2, Pentium 3
     INTEL_PM     = 4,                       // Pentium M, Core, Core 2
