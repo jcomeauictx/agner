@@ -85,7 +85,10 @@ def branch_plot(name, results):
     from matplotlib.pyplot import cm
     import numpy as np
     fig, ax = plt.subplots()
-    fig.canvas.set_window_title(name)
+    try:
+        fig.canvas.set_window_title(name)
+    except AttributeError:
+        fig.canvas.manager.set_window_title(name)
     num_samples = len(results)
     num_counters = len(results[0])
     width = 1.0 / (num_counters + 1)
