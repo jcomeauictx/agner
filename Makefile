@@ -1,6 +1,6 @@
 SHELL := /bin/bash  # allow Bashisms in Makefile
 OPTIMIZE ?=  # `make OPTIMIZE=-OO` for less verbose logging
-PYTHON = $(shell which python python2 python3 | head -n 1) $(OPTIMIZE)
+PYTHON = $(shell which python3 python python2 | head -n 1) $(OPTIMIZE)
 PYLIBDIR = $(shell $(PYTHON) -c 'import os; print os.path.dirname(os.__file__)')
 TIMESTAMP := $(shell date '+%Y%m%d%H%M%S')
 all: src/PMCTestA run
