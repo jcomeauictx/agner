@@ -1,15 +1,16 @@
 from __future__ import print_function
-import glob
-import os
-import sys
-import logging
-import subprocess
+import glob, os, sys, logging, subprocess  # pylint: disable=multiple-imports
+import platform
 from argparse import ArgumentParser
 from _tkinter import TclError
 
 logging.basicConfig(level=logging.DEBUG if __debug__ else logging.WARNING)
 
 THIS_DIR = os.path.dirname(os.path.realpath(__file__))
+BITS = platform.architecture()[0].rstrip('bit')
+OUT_A = 'out/a' + BITS
+OUT_B = 'out/b' + BITS
+PMCTESTB = 'PMCTestB' + BITS + '.nasm'
 
 def filter_match(tests, test, subtest):
     # Somewhat ropey 'wildcard' matching
@@ -88,7 +89,7 @@ class Agner(object):
 def run_test(test, counters, init_once="", init_each="", repetitions=3, procs=1):
     os.chdir(os.path.join(THIS_DIR, "..", "src"))
     sys.stdout.flush()
-    check_call(["make", "-s", "out/a64.o"])
+    check_call(['make', '-s', OUT_A + '.o'])
 
     with open("out/counters.inc", "w") as cf:
         [cf.write("    DD %d\n" % counter) for counter in counters]
@@ -103,14 +104,14 @@ def run_test(test, counters, init_once="", init_each="", repetitions=3, procs=1)
         init_f.write(init_each)
 
     check_call([
-        "nasm", "-f", "elf64", 
-        "-l", "out/b64.lst",
+        "nasm", "-f", "elf" + BITS, 
+        "-l", OUT_B + ".lst",
         "-I", "out/",
-        "-o", "out/b64.o",
+        "-o", OUT_B + ".o",
         "-D", "REPETITIONS=%d" % repetitions,
         "-D", "NUM_THREADS=%d" % procs,
-        "PMCTestB64.nasm"])
-    check_call(["g++", "-z", "noexecstack", "-o", "out/test", "out/a64.o", "out/b64.o", "-lpthread"])
+        PMCTESTB])
+    check_call(["g++", "-z", "noexecstack", "-o", "out/test", OUT_A + ".o", OUT_B + ".o", "-lpthread"])
     result = check_output(["out/test"]).decode()
     results = []
     header = None
