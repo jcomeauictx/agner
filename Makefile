@@ -1,15 +1,26 @@
 SHELL := /bin/bash  # allow Bashisms in Makefile
 OPTIMIZE ?=  # `make OPTIMIZE=-OO` for less verbose logging
 PYTHON = $(shell which python3 python python2 | head -n 1) $(OPTIMIZE)
-PYLIBDIR = $(shell $(PYTHON) -c 'import os; print os.path.dirname(os.__file__)')
+PYLIBDIR = $(shell $(PYTHON) -c "import sysconfig; \
+ print(sysconfig.get_path('stdlib'))")
 TIMESTAMP := $(shell date '+%Y%m%d%H%M%S')
+PROJECT_MAKEFILES := $(wildcard */Makefile */*/Makefile)
+ifeq ($(SHOWENV),)
+	export TIMESTAMP
+else
+	export
+endif
 all: src/PMCTestA run
 plot run list test_only: agner /dev/MSRdrv
 	$(PYTHON) $< $@ 2>&1 | tee $<_$@.$(TIMESTAMP).log
 	ln -sf $<_$@.$(TIMESTAMP).log $<_$@.log
 	@echo see $<_$@.log for debugging
 env:
+ifeq ($(SHOWENV),)
+	$(MAKE) SHOWENV=1 $@
+else
 	$@
+endif
 %: %.cpp
 	$(MAKE) -C $(<D) $(@F)
 tests: .FORCE
@@ -18,10 +29,10 @@ test:
 	$(MAKE) -C src $@
 %.ko: %.c
 	$(MAKE) -C $(<D)
-clean: src/Makefile src/driver/Makefile
+clean: $(PROJECT_MAKEFILES)
 	for file in $+; do $(MAKE) -C $$(dirname $$file) $@; done
 	rm -f *.log
-distclean: src/Makefile src/driver/Makefile
+distclean: $(PROJECT_MAKEFILES)
 	rm -f results.json
 	for file in $+; do $(MAKE) -C $$(dirname $$file) $@; done
 install: /dev/MSRdrv .FORCE
