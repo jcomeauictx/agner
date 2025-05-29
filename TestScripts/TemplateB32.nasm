@@ -1,5 +1,5 @@
 ;----------------------------------------------------------------------------
-;                       TemplateB32.nasm                2022-10-28 Agner Fog
+;                       TemplateB32.nasm                2025-05-18 Agner Fog
 ;
 ;                PMC Test program for multiple threads
 ;                           NASM syntax
@@ -71,7 +71,7 @@
 ; 
 ; See PMCTestB64.nasm and PMCTest.txt for general instructions.
 ; 
-; (c) 2000-2018 GNU General Public License www.gnu.org/licenses
+; (c) 2000-2025 GNU General Public License www.gnu.org/licenses
 ; 
 ;-----------------------------------------------------------------------------
 
@@ -601,7 +601,9 @@ TEST_LOOP_1:
 
         SERIALIZE
 
-        mov     ebx, [esp+4]      
+        mov     ebx, [esp+4]
+        cmp     byte [UsePMC], 0              ; skip if counters disabled
+        je      NOCOUNTERS1        
         ; Read counters
 %assign i  0
 %rep    NUM_COUNTERS
@@ -610,6 +612,7 @@ TEST_LOOP_1:
         mov     [ebx + i*4 + 4 + (CountTemp-ThreadData)], eax
 %assign i  i+1
 %endrep
+NOCOUNTERS1:
 
         SERIALIZE
 
@@ -631,7 +634,10 @@ TEST_LOOP_1:
 
         SERIALIZE
 
-        mov     ebx, [esp+4]      
+        mov     ebx, [esp+4]
+        cmp     byte [UsePMC], 0                           ; skip if counters disabled
+        je      NOCOUNTERS2        
+        
         ; Read counters
 %assign i  0
 %rep    NUM_COUNTERS
@@ -640,6 +646,7 @@ TEST_LOOP_1:
         sub     [ebx + i*4 + 4 + (CountTemp-ThreadData)], eax  ; CountTemp[i+1]
 %assign i  i+1
 %endrep
+NOCOUNTERS2:
 
         SERIALIZE
 
@@ -656,7 +663,7 @@ TEST_LOOP_1:
 %assign i  i+1
 %endrep
         
-        ; end second test loop
+        ; end first test loop
         inc     dword [esp+8]
         cmp     dword [esp+8], OVERHEAD_REPETITIONS
         jb      TEST_LOOP_1
@@ -665,7 +672,7 @@ TEST_LOOP_1:
 
         
 ; Second test loop. Measure user code
-        mov     dword [esp+8], 0          ; Loop counter
+        mov     dword [esp+8], 0            ; Loop counter
 
 TEST_LOOP_2:
 
@@ -676,7 +683,9 @@ TEST_LOOP_2:
         SERIALIZE
       
         mov     ebx, [esp+4]
-        
+
+        cmp     byte [UsePMC], 0            ; skip if counters disabled
+        je      NOCOUNTERS3       
         ; Read counters
 %assign i  0
 %rep    NUM_COUNTERS
@@ -685,6 +694,7 @@ TEST_LOOP_2:
         mov     [ebx + i*4 + 4 + (CountTemp-ThreadData)], eax
 %assign i  i+1
 %endrep
+NOCOUNTERS3:
 
         SERIALIZE
 
@@ -747,11 +757,14 @@ REPETITIONS1LOOP:
         
         ; read time stamp counter
         rdtsc
-        sub     [ebx + (CountTemp-ThreadData)], eax        ; CountTemp[0]
+        sub     [ebx + (CountTemp-ThreadData)], eax   ; CountTemp[0]
 
         SERIALIZE
 
-        mov     ebx, [esp+4]      
+        mov     ebx, [esp+4]
+
+        cmp     byte [UsePMC], 0                      ; skip if counters disabled
+        je      NOCOUNTERS4
         ; Read counters
 %assign i  0
 %rep    NUM_COUNTERS
@@ -759,7 +772,8 @@ REPETITIONS1LOOP:
         rdpmc
         sub     [ebx + i*4 + 4 + (CountTemp-ThreadData)], eax  ; CountTemp[i+1]
 %assign i  i+1
-%endrep        
+%endrep
+NOCOUNTERS4:
 
         SERIALIZE
 
