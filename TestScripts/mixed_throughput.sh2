@@ -1,12 +1,12 @@
 #!/bin/bash
-#                mixed_throughput.sh2             2021-03-15 Agner Fog
+#                mixed_throughput.sh2             2025-05-18 Agner Fog
 #
 # PMC Test program for testing the throughput for mixed instructions
 #
 # Outputs number of instructions per clock and number of bytes per clock
 # NOTE: nbytes has not been checked. Numbers may be wrong
 #
-# (c) 2021 GNU General Public License www.gnu.org/licenses
+# (c) 2021-2025 GNU General Public License www.gnu.org/licenses
 #
 # Parameters:
 #
@@ -126,7 +126,32 @@ g++ -fno-pie -no-pie -m64 -fno-pie -no-pie a64.o b64.o -ox -lpthread
 if [ $? -ne 0 ] ; then exit ; fi
 ./x >> results2/mixed_throughput.txt
 
+tcase=13
+echo -e "\n\nCase 13. vector 3 read, 1 write, 128 bits"  >> results2/mixed_throughput.txt
 
+$ass -f elf64 -o b64.o -Dtcase=$tcase -Drepeat1=$repeat1 -Drepeat2=$repeat2 -Dnthreads=$nthreads -Dcounters=$cts -Pmixed_throughput.inc TemplateB64.nasm
+if [ $? -ne 0 ] ; then exit ; fi
+g++ -fno-pie -no-pie -m64 -fno-pie -no-pie a64.o b64.o -ox -lpthread
+if [ $? -ne 0 ] ; then exit ; fi
+./x >> results2/mixed_throughput.txt
+
+tcase=14
+echo -e "\n\nCase 14. vector 2 read, 2 write, 128 bits"  >> results2/mixed_throughput.txt
+
+$ass -f elf64 -o b64.o -Dtcase=$tcase -Drepeat1=$repeat1 -Drepeat2=$repeat2 -Dnthreads=$nthreads -Dcounters=$cts -Pmixed_throughput.inc TemplateB64.nasm
+if [ $? -ne 0 ] ; then exit ; fi
+g++ -fno-pie -no-pie -m64 -fno-pie -no-pie a64.o b64.o -ox -lpthread
+if [ $? -ne 0 ] ; then exit ; fi
+./x >> results2/mixed_throughput.txt
+
+tcase=15
+echo -e "\n\nCase 15. vector 3 read, 1 write, 512 bits"  >> results2/mixed_throughput.txt
+
+$ass -f elf64 -o b64.o -Dtcase=$tcase -Drepeat1=$repeat1 -Drepeat2=$repeat2 -Dnthreads=$nthreads -Dcounters=$cts -Pmixed_throughput.inc TemplateB64.nasm
+if [ $? -ne 0 ] ; then exit ; fi
+g++ -fno-pie -no-pie -m64 -fno-pie -no-pie a64.o b64.o -ox -lpthread
+if [ $? -ne 0 ] ; then exit ; fi
+./x >> results2/mixed_throughput.txt
 
 
 if  [ `grep -c -i "avx2"  cpuinfo.txt ` -ne 0 ] ; then

@@ -1,12 +1,13 @@
-; mov_rename.inc                                           2022-11-02 Agner Fog
+; mov_rename.inc                                  2025-05-19 Agner Fog
 
 ; Test if move instructions can be eliminated by renaming, measured in dependency chain
 
-; (c) 2013-2022 by Agner Fog. GNU General Public License www.gnu.org/licenses
+; (c) 2013-2025 by Agner Fog. GPL3 License www.gnu.org/licenses
 
 ; Parameters:
 ;
 ; regsize:   Size of register operand, default = 32
+;            65 means mmx register, 66 means 16 bit k register, 67 means 64 bit k register
 ; instruct1: Instruction between moves. must have two operands, 'none' for none, default is ADD
 ; nummov:    Number of move instructions between instruct1
 ; tcase:     Test case: 1 = same register, 2 = different register, 3 = register known to be zero
@@ -23,11 +24,19 @@
    %define tcase 2
 %endif
 
+
 ; define appropriate move instruction:
 %if regsize <= 64
    %define mov1 mov
 %elif regsize == 65    ; 64 bit mmx registers
    %define mov1 movq
+   %define regtype mmx
+%elif regsize == 66    ; 16 bit k registers
+   %define mov1 kmovw
+   %define regtype k
+%elif regsize == 67    ; 64 bit k registers
+   %define mov1 kmovq
+   %define regtype k
 %elif regsize == 128
    %define mov1 movdqa
 %elif regsize == 256
@@ -44,6 +53,10 @@
    %define instruct1 add
 %elif regsize == 65    ; 64 bit mmx registers
    %define instruct1 paddw
+%elif regsize == 66    ; 16 bit k registers
+   %define instruct1 kaddw
+%elif regsize == 67    ; 64 bit k registers
+   %define instruct1 kaddq
 %elif regsize == 128
    %define instruct1 paddw
 %elif regsize == 256
@@ -64,10 +77,10 @@
    %rep 100
 
       %ifnidni instruct1,none
-         %if regsize < 256
-            instruct1 reg0, reg0
+         %if regsize >= 256 || regsize == 66 || regsize == 67
+            instruct1 reg1, reg1, reg2
          %else
-            instruct1 reg0, reg0, reg0
+            instruct1 reg1, reg2
          %endif
       %endif
 
@@ -84,11 +97,11 @@
    %if nummov == 0
 
       %rep 100
-         %ifnidni instruct1,none
-            %if regsize < 256
-               instruct1 reg0, reg2
+         %ifnidni instruct1,none         
+            %if regsize >= 256 || regsize == 66 || regsize == 67
+               instruct1 reg1, reg1, reg2
             %else
-               instruct1 reg0, reg0, reg2
+               instruct1 reg1, reg2
             %endif
          %endif
          
@@ -99,10 +112,10 @@
       %rep 50
 
          %ifnidni instruct1,none
-            %if regsize < 256
-               instruct1 reg0, reg2
+            %if regsize >= 256 || regsize == 66 || regsize == 67
+               instruct1 reg1, reg1, reg2
             %else
-               instruct1 reg0, reg0, reg2
+               instruct1 reg1, reg2
             %endif
          %endif
 
@@ -136,10 +149,10 @@
          %endif  
 
          %ifnidni instruct1,none
-            %if regsize < 256
-               instruct1 reg1, reg2
-            %else
+            %if regsize >= 256 || regsize == 66 || regsize == 67
                instruct1 reg1, reg1, reg2
+            %else
+               instruct1 reg1, reg2
             %endif
          %endif
 
@@ -185,6 +198,10 @@
          xor eax,eax
       %elif regsize == 65    ; 64 bit mmx registers
          pxor reg0,reg0
+      %elif regsize == 66    ; 16 bit k registers
+         kxorw reg0,reg0,reg0
+      %elif regsize == 67    ; 64 bit k registers
+         kxorq reg0,reg0,reg0
       %elif regsize == 128
          pxor reg0,reg0
       %elif regsize == 256

@@ -1,4 +1,4 @@
-//                       PMCTestA.cpp                2022-08-29 Agner Fog
+//                       PMCTestA.cpp              2025-05-18 Agner Fog
 //
 //          Multithread PMC Test program for Windows and Linux
 //
@@ -8,8 +8,10 @@
 // The code to test is inserted at the place marked "Test code start" in
 // PMCTestB.cpp, PMCTestB32.asm or PMCTestB64.asm.
 // 
-// In 64-bit Windows: Run as administrator, with driver signature enforcement
-// off.
+// In Linux: Install the driver as explained in the manual
+// 
+// In Windows: Run as administrator, with driver signature enforcement
+// off, as explained in the manual
 //
 // See PMCTest.txt for further instructions.
 //
@@ -18,22 +20,12 @@
 // To turn counters off again, use command line option 
 //     stopcounters
 //
-// © 2000-2022 GNU General Public License v. 3. www.gnu.org/licenses
+// © 2000-2025 GNU General Public License v. 3. www.gnu.org/licenses
 //////////////////////////////////////////////////////////////////////////////
 
 #include "PMCTest.h"
 
 // #include <math.h> // for warmup only
-
-// fix for gettid() not defined in this scope
-// https://stackoverflow.com/a/63494768/493161
-#if __GLIBC__ == 2 && __GLIBC_MINOR__ < 30
-#pragma message("redefining gettid() to avoid buggy compiler")
-#include <sys/syscall.h>
-#define gettid() syscall(SYS_gettid)
-#else
-#pragma message("gettid() should compile without error")
-#endif
 
 int diagnostics = 0; // 1 for output of CPU model and PMC scheme
 
@@ -536,6 +528,8 @@ int CCounters::StartDriver() {
         // Load driver
         ErrNo = msr.LoadDriver();
     }
+    // Disable performance counters if driver not found
+    if (ErrNo) UsePMC = 0;
 
     return ErrNo;
 }
@@ -678,7 +672,7 @@ void CCounters::GetProcessorFamily() {
                 MFamily = INTEL_HASW;  break;              // Broadwell
             case 0x5E: case 0x55:
                 MFamily = INTEL_SKYL;  break;              // Skylake
-            case 0x8C:
+            case 0x8C: case 0x8E:
                 MFamily = INTEL_ICE;  break;               // Ice Lake, Tiger Lake
             case 0x97: case 0x9A:
                 MFamily = INTEL_GOLDCV;  break;            // Alder Lake, Golden Cove
@@ -812,7 +806,7 @@ const char * CCounters::DefineCounter(int CounterType) {
     }
     if (i >= NumCounterDefinitions) {
         //printf("\nCounterType = %X, MScheme = %X, MFamily = %X\n", CounterType, MScheme, MFamily);
-        return "No matching counter definition found (PMCTest/PMCTestA.cpp)"; // not found in list
+        return "No matching counter definition found"; // not found in list
     }
     return DefineCounter(*p);
 }
@@ -1293,9 +1287,37 @@ SCounterDefinition CounterDefinitions[] = {
     {311, S_ID4,  INTEL_SKYL, 0,  3,     0,   0x24,     0xe1, "L1D Miss"   }, // level 1 data cache miss
     {320, S_ID4,  INTEL_SKYL, 0,  3,     0,   0x24,     0x27, "L2 Miss"    }, // level 2 cache misses
 
-    // Ice Lake and Tiger lake
+    // Tiger lake, CPUID 0x8E
     // The first three counters are fixed-function counters having their own register,
     // The rest of the counters are competing for the same four counter registers.
+    // id   scheme  cpu       countregs eventreg event  mask   name
+    {1,   S_ID4,  INTEL_ICE, 0x40000001,  0,0,   0,     0,   "Core cyc"   }, // core clock cycles
+    {2,   S_ID4,  INTEL_ICE, 0x40000002,  0,0,   0,     0,   "Ref cyc"    }, // Reference clock cycles
+    {9,   S_ID4,  INTEL_ICE, 0x40000000,  0,0,   0,     0,   "Instruct"   }, // Instructions (reference counter)
+    {10,  S_ID4,  INTEL_ICE, 0,  7,     0,   0xc0,     0x00, "Instruct"   }, // Instructions
+    {22,  S_ID4,  INTEL_ICE, 0,  7,     0,   0x87,     0x01, "ILenStal"   }, // instruction length decoder stall due to length changing prefix
+    {24,  S_ID4,  INTEL_ICE, 0,  7,     0,   0xA8,     0x01, "Loop uops"  }, // uops from loop stream detector
+    {25,  S_ID4,  INTEL_ICE, 0,  7,     0,   0x79,     0x04, "Dec uops"   }, // uops from decoders. (MITE = Micro-instruction Translation Engine)
+    {26,  S_ID4,  INTEL_ICE, 0,  7,     0,   0x79,     0x08, "Cach uops"  }, // uops from uop cache. (DSB = Decoded Stream Buffer)
+    {100, S_ID4,  INTEL_ICE, 0,  7,     0,   0xc2,     0x01, "Uops"       }, // uops retired, unfused domain
+    {104, S_ID4,  INTEL_ICE, 0,  7,     0,   0x0e,     0x01, "uops RAT"   }, // uops from RAT to RS
+    {111, S_ID4,  INTEL_ICE, 0,  7,     0,   0xa2,     0x08, "res.stl."   }, // resource stall
+    {131, S_ID4,  INTEL_ICE, 0,  7,     0,   0xC1,     0x07, "uc asist"   }, // microcode assist
+    {150, S_ID4,  INTEL_ICE, 0,  7,     0,   0xa1,     0x01, "uop p0"     }, // uops port 0.
+    {151, S_ID4,  INTEL_ICE, 0,  7,     0,   0xa1,     0x02, "uop p1"     }, // uops port 1.
+    {152, S_ID4,  INTEL_ICE, 0,  7,     0,   0xa1,     0x04, "uop p23"    }, // uops port 2&3.
+    {154, S_ID4,  INTEL_ICE, 0,  7,     0,   0xa1,     0x10, "uop p49"    }, // uops port 4&9.
+    {155, S_ID4,  INTEL_ICE, 0,  7,     0,   0xa1,     0x20, "uop p5"     }, // uops port 5.
+    {156, S_ID4,  INTEL_ICE, 0,  7,     0,   0xa1,     0x40, "uop p6"     }, // uops port 6.
+    {157, S_ID4,  INTEL_ICE, 0,  7,     0,   0xa1,     0x80, "uop p78"    }, // uops port 7&8.
+    {201, S_ID4,  INTEL_ICE, 0,  7,     0,   0xC4,     0x20, "BrTaken"    }, // branches taken
+    {207, S_ID4,  INTEL_ICE, 0,  7,     0,   0xC5,     0x00, "BrMispred"  }, // mispredicted branches
+    {310, S_ID4,  INTEL_ICE, 0,  7,     0,   0x80,     0x04, "CodeMiss"   }, // code cache misses
+    {311, S_ID4,  INTEL_ICE, 0,  7,     0,   0x24,     0xe1, "L1D Miss"   }, // level 1 data cache miss
+    {320, S_ID4,  INTEL_ICE, 0,  7,     0,   0x24,     0x21, "L2 Miss"    }, // level 2 cache misses
+
+    // Also Tiger lake, CPUID 0x8C
+    // And Ice lake?
     // id   scheme  cpu       countregs eventreg event  mask   name
     {1,   S_ID5,  INTEL_ICE, 0x40000001,  0,0,   0,     0,   "Core cyc"   }, // core clock cycles
     {2,   S_ID5,  INTEL_ICE, 0x40000002,  0,0,   0,     0,   "Ref cyc"    }, // Reference clock cycles
@@ -1321,6 +1343,7 @@ SCounterDefinition CounterDefinitions[] = {
     {310, S_ID5,  INTEL_ICE, 0,  7,     0,   0x80,     0x04, "CodeMiss"   }, // code cache misses
     {311, S_ID5,  INTEL_ICE, 0,  7,     0,   0x24,     0xe1, "L1D Miss"   }, // level 1 data cache miss
     {320, S_ID5,  INTEL_ICE, 0,  7,     0,   0x24,     0x21, "L2 Miss"    }, // level 2 cache misses
+
 
     // Alder Lake and Golden Cove
     // The first three counters are fixed-function counters having their own register,

@@ -1,9 +1,9 @@
 #!/bin/bash
-#                                                                2022-11-02 Agner Fog
+#                                                   2025-05-19 Agner Fog
 
 # Test instruction fusion of move instructions
 
-# (c) 2012 - 2015 by Agner Fog. GNU General Public License www.gnu.org/licenses
+# (c) 2012 - 2025 by Agner Fog. GPL3 License www.gnu.org/licenses
 
 
 # Parameters
@@ -26,20 +26,26 @@ fi
 
 echo -e "Test if move instructions can be eliminated by renaming\n"  > results2/mov_rename.txt
 
-if [ `./cpugetinfo -avx` -ne 0 ] ; then
-regsizelist1="8 16 32 64 65 128 256 512"
-regsizelist2="32 128 256 512"
+if [ `./cpugetinfo -avx512bw` -ne 0 ] ; then
+   regsizelist1="8 16 32 64 65 66 67 128 256 512"
+   regsizelist2="32 128 256 512"
+elif [ `./cpugetinfo -avx512` -ne 0 ] ; then
+   regsizelist1="8 16 32 64 65 66 128 256 512"
+   regsizelist2="32 128 256 512"
+elif [ `./cpugetinfo -avx` -ne 0 ] ; then
+   regsizelist1="8 16 32 64 65 128 256 512"
+   regsizelist2="32 128 256 512"
 else
-regsizelist1="8 16 32 64 65 128"
-regsizelist2="32 128"
+   regsizelist1="8 16 32 64 65 128"
+   regsizelist2="32 128"
 fi
 
 for tcase in 2 1
 do
 if [ $tcase -eq 1 ] ; then
-   echo -e "\n\nTest with same registers:\n"  >> results2/mov_rename.txt
+   echo -e "\n\n*** Test with same registers:\n"  >> results2/mov_rename.txt
 elif [ $tcase -eq 2 ] ; then
-   echo -e "\n\nTest with different registers:\n"  >> results2/mov_rename.txt
+   echo -e "\n\n*** Test with different registers:\n"  >> results2/mov_rename.txt
 else
    echo unknown test case
    exit
@@ -50,6 +56,8 @@ for regsize in $regsizelist1
 do
 
 if   [ $regsize -eq 65  ] ; then regname="mmx"
+elif [ $regsize -eq 66  ] ; then regname="k16"
+elif [ $regsize -eq 67  ] ; then regname="k64"
 elif [ $regsize -eq 128 ] ; then regname="xmm"
 elif [ $regsize -eq 256 ] ; then regname="ymm"
 elif [ $regsize -eq 512 ] ; then regname="zmm"
@@ -59,7 +67,7 @@ fi
 
 for nummov in 0 1 2 3 4
 do
-echo -e "\nregister $regname, ADD interspearced by $nummov MOVes"  >> results2/mov_rename.txt
+echo -e "\nregister $regname, ADD interspearsed by $nummov MOVes"  >> results2/mov_rename.txt
 $ass -f elf64 -o b64.o -Dregsize=$regsize -Dnummov=$nummov -Dtcase=$tcase -Dcounters=$PMCcounters -Drepeat0=$repeat0 -Drepeat1=$repeat1 -Pmov_rename.inc TemplateB64.nasm
 if [ $? -ne 0 ] ; then exit ; fi
 g++ -fno-pie -no-pie -m64 a64.o b64.o -ox -lpthread
@@ -77,7 +85,7 @@ else
    PMCcounterlist="$PMClist"
 fi
 
-echo -e "\n\nCheck all execution ports"  >> results2/mov_rename.txt
+echo -e "\n\n*** ADD interspearsed by move with different registers"  >> results2/mov_rename.txt
 
 tcase=2
 nummov=1
@@ -93,7 +101,7 @@ else
 regname=r$regsize
 fi
 
-echo -e "\nregister $regname, ADD interspearced by $nummov MOVes"  >> results2/mov_rename.txt
+echo -e "\nregister $regname, ADD interspearsed by $nummov MOVes"  >> results2/mov_rename.txt
 for c in  $PMCcounterlist
 do
 $ass -f elf64 -o b64.o -Dregsize=$regsize -Dnummov=$nummov -Dtcase=$tcase -Dcounters=$c -Drepeat0=$repeat0 -Drepeat1=$repeat1 -Pmov_rename.inc TemplateB64.nasm
@@ -105,7 +113,7 @@ done
 done
 
 
-echo -e "\n\nMove registers known to be zero"  >> results2/mov_rename.txt
+echo -e "\n\n*** Move registers known to be zero"  >> results2/mov_rename.txt
 tcase=3
 nummov=1
 
@@ -113,6 +121,8 @@ for regsize in $regsizelist1
 do
 
 if   [ $regsize -eq 65  ] ; then regname="mmx"
+elif [ $regsize -eq 66  ] ; then regname="k16"
+elif [ $regsize -eq 67  ] ; then regname="k64"
 elif [ $regsize -eq 128 ] ; then regname="xmm"
 elif [ $regsize -eq 256 ] ; then regname="ymm"
 elif [ $regsize -eq 512 ] ; then regname="zmm"
@@ -129,7 +139,7 @@ if [ $? -ne 0 ] ; then exit ; fi
 
 done
 
-echo -e "\n\nMove with zero extension"  >> results2/mov_rename.txt
+echo -e "\n\n*** Move with zero extension"  >> results2/mov_rename.txt
 tcase=4
 regsize=32
 nummov=1

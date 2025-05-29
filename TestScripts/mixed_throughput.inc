@@ -1,5 +1,5 @@
 ;----------------------------------------------------------------------------
-;        mixed_throughput.inc                          2021-03-15 Agner Fog
+;        mixed_throughput.inc                          2025-05-18 Agner Fog
 ;
 ; PMC Test program for testing the throughput for mixed instructions
 ;
@@ -25,6 +25,9 @@
 ;           10: vector 2 read, 128 bits
 ;           11: vector 1 read, 1 write, 1 mov, 128 bits
 ;           12: vector 2 read, 1 write, 1 mov, 128 bits
+;           13: vector 3 read, 1 write, 128 bits
+;           14: vector 2 read, 2 write, 128 bits
+;           15: vector 3 read, 1 write, 512 bits
 ;
 ;           20: vector 2 read, 1 write, 1 padd, 256 bits
 ;           21: vector 1 read, 2 write, 1 padd, 256 bits
@@ -43,7 +46,7 @@
 ;           60: 2 float add, 2 float mul, 256 bits
 ;           61: 2 float add, 2 fma, 256 bits
 ;
-; (c) Copyright 2021 by Agner Fog. GNU General Public License www.gnu.org/licenses
+; (c) Copyright 2021-2025 by Agner Fog. GNU GPL3 www.gnu.org/licenses
 ;-----------------------------------------------------------------------------
 ; Define any undefined macros
 
@@ -248,6 +251,60 @@
    %endmacro
 
    %define nbytes 18
+
+%elif tcase == 13   ; vector 3 read, 1 write, 128 bits
+
+   %macro testcode 0
+      mov r8d, repeatx1
+      align 16
+      %%LL1:
+         %rep repeatx2
+            movdqa xmm1, [psi]
+            movdqa xmm2, [psi+16]
+            movdqa [psi+32], xmm3
+            movdqa xmm4, [psi+32]
+         %endrep
+      dec r8d
+      jnz %%LL1
+   %endmacro
+
+   %define nbytes 19
+
+%elif tcase == 14   ; vector 2 read, 2 write, 128 bits
+
+   %macro testcode 0
+      mov r8d, repeatx1
+      align 16
+      %%LL1:
+         %rep repeatx2
+            movdqa xmm1, [psi]
+            movdqa xmm2, [psi+16]
+            movdqa [psi+32], xmm3
+            movdqa [psi+48], xmm4
+         %endrep
+      dec r8d
+      jnz %%LL1
+   %endmacro
+
+   %define nbytes 19
+
+%elif tcase == 15   ; vector 3 read, 1 write, 512 bits
+
+   %macro testcode 0
+      mov r8d, repeatx1
+      align 16
+      %%LL1:
+         %rep repeatx2
+            vmovdqa32 zmm1, [psi]
+            vmovdqa32 zmm2, [psi+0x40]
+            vmovdqa32 [psi+0x80], zmm3
+            vmovdqa32 zmm4, [psi+0xC0]
+         %endrep
+      dec r8d
+      jnz %%LL1
+   %endmacro
+
+   %define nbytes 27
 
 
 %elif tcase == 20   ; vector 2 read, 1 write, 1 padd, 256 bits

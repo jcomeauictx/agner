@@ -1,12 +1,13 @@
 ;----------------------------------------------------------------------------
-;                       memory_mirror.inc 
+;               memory_mirror.inc           2025-05-18
 ;
 ; testing the mirroring of memory operands.
 ; The AMD Zen 2 CPU can mirror memory operands in temporary registers under certain
 ; conditions, tested here
 ;                           NASM syntax
 ;
-; Last modified: 2021-03-23
+; (c) Copyright 2020-2025 by Agner Fog. GPL3 www.gnu.org/licenses
+
 ;
 ; The following macros can be defined on the command line or in include files:
 ; 
@@ -32,6 +33,7 @@
 ; WRPA      write / read latency with aliased pointer
 ; WRPIS     write / read latency with pointer and index registers swapped
 ; WRPUSH    write / read latency with push/pop
+; WRPUSH4   write / read latency with push/pop 4 deep
 ; WRFUNC    write / read latency with function parameter on stack
 ; WRFUNCBP  write / read latency with parameter on stack and rbp address
 ; WRFUNCSPSUB write / read latency with parameter on stack and frame size subtracted from rsp
@@ -401,6 +403,25 @@ LL:
 %endrep
 dec ebp
 jnz LL
+
+%elifidni tcase, WRPUSH4    ; write / read latency with push/pop 4 deep
+
+mov ebp, 25
+align 32
+LL:
+%rep 100
+  push reg1
+  push reg2
+  push reg3
+  push reg4
+  pop reg4
+  pop reg3
+  pop reg2
+  pop reg1
+%endrep
+dec ebp
+jnz LL
+
 
 %elifidni tcase, WRFUNC    ; write / read latency with function parameter on stack
 

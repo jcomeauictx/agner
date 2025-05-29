@@ -20,7 +20,6 @@ vpshldq,512,3,3,lt,avx512vbmi2,3op
 vpshrdw,512,3,7,lt,avx512vbmi2,3op
 vpshrdd,512,3,5,lt,avx512vbmi2,3op
 vpshrdq,512,3,3,lt,avx512vbmi2,3op
-$text=\nnasm assembler fails on this one. Bug report submitted:,,,,,,
 vpshldvw,128,3,,lt,avx512vbmi2,3op
 vpshldvw,256,3,,lt,avx512vbmi2,3op
 vpshldvw,512,3,,lt,avx512vbmi2,3op
