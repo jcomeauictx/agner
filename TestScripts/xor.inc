@@ -1,7 +1,7 @@
-; xor.inc                                                                 2012-02-19 AgF
+; xor.inc                                  2025-05-19 Agner Fog
 ; Run PMCTest for various instructions
 ; to test if they are independent of input operands
-; (c) 2012 by Agner Fog. GNU General Public License www.gnu.org/licenses
+; (c) 2012-2025 by Agner Fog. GPL3 License www.gnu.org/licenses
 
 ; Parameters:
 ;
