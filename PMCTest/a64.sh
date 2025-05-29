@@ -1,5 +1,5 @@
 #!/bin/bash
-#compile and run PMCTest in 64 bit mode with yasm assembly syntax
+#compile and run PMCTest in 64 bit mode with nasm assembly syntax
 
 # Compile A file if modified
 if [ PMCTestA.cpp -nt a64.o ] ; then

@@ -1,8 +1,8 @@
-; convers2.inc                                                    2013-07-06 AgF
+; convers2.inc                                2025-05-18 Agner Fog
 ;
 ; Define test code to test latency and throughput for instructions with
 ; different register types for input and output. All instructions are in AVX mode.
-; (c) Copyright 2012 by Agner Fog. GNU General Public License www.gnu.org/licenses
+; (c) Copyright 2012-2025 by Agner Fog. GPL3 www.gnu.org/licenses
 ;
 ; Parameters:
 ; tcase:       Test case:

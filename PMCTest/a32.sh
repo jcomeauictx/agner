@@ -1,5 +1,5 @@
 #!/bin/bash
-# Compile and run PMCTest in 32 bit mode using yasm assembler syntax
+# Compile and run PMCTest in 32 bit mode using nasm assembler syntax
 # In 32-bit Linux: Remove -m32 flag on g++ commands
 # In 64-bit Linux: Must install g++-multilib first
 

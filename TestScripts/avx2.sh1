@@ -4,8 +4,9 @@
 # looping through list of instructions
 # (c) Copyright 2013-2016 by Agner Fog. GNU General Public License www.gnu.org/licenses
 
+
 # Exit if AVX2 not supported
-if  [ `grep -c -i "AVX2" cpuinfo.txt ` -eq 0 ] ; then exit ; fi
+if  [ `grep -c -i "avx2" cpuinfo.txt ` -eq 0 ] ; then exit ; fi
 
 # Detect CPU specific variables
 . vars.sh
