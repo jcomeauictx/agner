@@ -42,9 +42,11 @@ uninstall:
 	$(MAKE) -C src/driver $@
 %.trace: %
 	$(PYTHON) -m trace --trace --ignore-dir=$(PYLIBDIR) $<
-TestScripts/%.diff: $(HOME)/Downloads/testp/TestScripts/%
-	diff $(@:.diff=) $<
-TestScripts/%.update: $(HOME)/Downloads/testp/TestScripts/%
-	cp -f $< $(@:.update=)
+TestScripts.diff: | $(HOME)/Downloads/testp/TestScripts
+	diff -rw TestScripts/ $|
+TestScripts/%.diff: | $(HOME)/Downloads/testp/TestScripts/%
+	diff $(@:.diff=) $|
+TestScripts/%.update: | $(HOME)/Downloads/testp/TestScripts/%
+	cp -f $| $(@:.update=)
 .FORCE:
 .PHONY: %.diff %.trace install clean distclean
