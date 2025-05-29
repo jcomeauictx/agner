@@ -1,10 +1,10 @@
 #!/bin/bash
-#                                                                        2021-03-15 AgF
+#                                                                2025-05-18 Agner Fog
 
 # Compile and run PMCTest for various combinations of arithmetic instructions and branch instructions
 # to test for instruction fusion
 
-# (c) Copyright 2013 - 2021 by Agner Fog. GNU General Public License www.gnu.org/licenses
+# (c) Copyright 2013 - 2025 by Agner Fog. General Public License GPL3 www.gnu.org/licenses
 
 # Detect CPU specific variables
 . vars.sh
@@ -78,6 +78,29 @@ if [ $? -ne 0 ] ; then exit ; fi
 g++ -fno-pie -no-pie -m64 a64.o b64.o -ox -lpthread
 if [ $? -ne 0 ] ; then exit ; fi
 ./x >> results2/fused_branch.txt
+done
+done
+
+let case=0
+for instr1 in cmp add
+do
+for instr2 in jc
+do
+
+let optype=1
+for memtype in r,imm r,rip_rel r,[r] r,[r+i] [r],i  [r+i],i 
+do
+let optype+=1
+
+# echo -e "\n\noptype $optype:"  >> results2/fused_branch.txt
+echo -e "\n\n$instr1 $memtype / $instr2 \n"  >> results2/fused_branch.txt
+$ass -f elf64 -o b64.o -Dcase=$case -Doptype=$optype -Dtaken=0 -Dinstr1=$instr1 -Dinstr2=$instr2 -Dcounters=$BranchPMCs -Pfused_branch.inc TemplateB64.nasm
+if [ $? -ne 0 ] ; then exit ; fi
+g++ -fno-pie -no-pie -m64 a64.o b64.o -ox -lpthread
+if [ $? -ne 0 ] ; then exit ; fi
+./x >> results2/fused_branch.txt
+
+done
 done
 done
 

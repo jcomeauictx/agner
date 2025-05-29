@@ -1,8 +1,8 @@
-; convers.inc                                                              2012-02-01 AgF
+; convers.inc                                                   2015-05-18 Agner fog
 ;
 ; Define universal test code to test latency and throughput for conversion instructions with
 ; different register types for input and output
-; (c) Copyright 2012 by Agner Fog. GNU General Public License www.gnu.org/licenses
+; (c) Copyright 2012-2025 by Agner Fog. GPL3 www.gnu.org/licenses
 ;
 ; Parameters:
 ;
@@ -36,6 +36,8 @@
 ;              L12:  measure latency of instruct1 B, A + instruct2 A, B
 ;
 ;              L123: measure latency of instruct1 B, A + instruct2 A, B + instruct3 A, A
+;
+;              L12M: measure latency of instruct1 A, mem + instruct2 A,A + instruct3 mem, A
 ;
 ;              LSX:  measure latency of movsx or movzx with memory operand
 ;
@@ -270,6 +272,14 @@
       instruct1 RB2, RA1 immoperands1
       instruct2 RA1, RB2 immoperands2
       instruct3 RA1, RA1
+   %endmacro
+   
+%elifidni tmode,L12M        ; measure latency of instruct1 A,mem + instruct2 A,A + instruct3 mem,A
+   
+   %macro testcode 0
+      instruct1 RA1, [psi] immoperands1
+      instruct2 RA1, RA2 immoperands2
+      instruct3 [psi], RA1
    %endmacro
 
 %elifidni tmode,LSX         ; measure latency of movsx r,[m] + mov [m],r

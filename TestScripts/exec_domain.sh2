@@ -23,6 +23,7 @@ echo -e "Test chains of instructions to determine delays between different execu
 #    2 = test latency of instruction + chain instruction B
 #    3 = all of the above
 #    4 = test latency of instruction + A + B / B + A
+#    5 = test latency of instruction chain with memory intermediate and reverse
 #
 # The sets are separated by space
 
@@ -78,6 +79,8 @@ for instrpair in                      \
    dppd,por,maxpd,0,xmm,4             \
    sqrtps,por,maxps,n,xmm,3           \
    andps,por,maxps,n,xmm,3            \
+   addps,por,movaps,0,xmm,5           \
+   maxps,paddw,movdqa,0,xmm,5         \
    $list2
 do
 
@@ -112,6 +115,7 @@ if [ $? -ne 0 ] ; then exit ; fi
 ./x >> results2/exec_domain.txt
 fi
 
+
 if [ $ttmode -eq 1 -o $ttmode -eq 3 ] ; then
 echo -e "\n\nLatency: $instruct1 $regtype1,$regtype1 + $instruct2 $regtype1,$regtype1"  >> results2/exec_domain.txt
 $ass -f elf64 -o b64.o -Dinstruct1=$instruct1 -Dinstruct2=$instruct2 -Dregtype1=$regtype1 -Dregtype2=$regtype1 -Dnumimm=$numimm -Dimmvalue=$immvalue -Dnumop1=$numop1 -Drepeat1=$repeat1 -Dtmode=L12 -Pconvers.inc TemplateB64.nasm
@@ -121,6 +125,7 @@ if [ $? -ne 0 ] ; then exit ; fi
 ./x >> results2/exec_domain.txt
 fi
 
+
 if [ $ttmode -eq 2 -o $ttmode -eq 3 ] ; then
 echo -e "\n\nLatency: $instruct1 $regtype1,$regtype1 + $instruct3 $regtype1,$regtype1"  >> results2/exec_domain.txt
 $ass -f elf64 -o b64.o -Dinstruct1=$instruct1 -Dinstruct2=$instruct3 -Dregtype1=$regtype1 -Dregtype2=$regtype1 -Dnumimm=$numimm -Dimmvalue=$immvalue -Dnumop1=$numop1 -Drepeat1=$repeat1 -Dtmode=L12 -Pconvers.inc TemplateB64.nasm
@@ -129,6 +134,7 @@ g++ -fno-pie -no-pie -m64 a64.o b64.o -ox -lpthread
 if [ $? -ne 0 ] ; then exit ; fi
 ./x >> results2/exec_domain.txt
 fi
+
 
 if [ $ttmode -eq 4 ] ; then
 echo -e "\n\nLatency: $instruct1 + $instruct2 + $instruct3 $regtype1,$regtype1"  >> results2/exec_domain.txt
@@ -145,7 +151,21 @@ if [ $? -ne 0 ] ; then exit ; fi
 ./x >> results2/exec_domain.txt
 fi
 
-#elif
+
+if [ $ttmode -eq 5 ] ; then
+echo -e "\n\nLatency: $instruct1 $regtype1,mem + $instruct2 $regtype1,$regtype1 + $instruct3 mem,$regtype1"  >> results2/exec_domain.txt
+$ass -f elf64 -o b64.o -Dinstruct1=$instruct1 -Dinstruct2=$instruct2 -Dinstruct3=$instruct3 -Dregtype1=$regtype1 -Dregtype2=$regtype1 -Dnumimm=0 -Dnumop1=2 -Drepeat1=$repeat1 -Dtmode=L12M -Pconvers.inc TemplateB64.nasm
+if [ $? -ne 0 ] ; then exit ; fi
+g++ -fno-pie -no-pie -m64 a64.o b64.o -ox -lpthread
+if [ $? -ne 0 ] ; then exit ; fi
+./x >> results2/exec_domain.txt
+echo -e "\n\nLatency: $instruct2 $regtype1,mem + $instruct1 $regtype1,$regtype1 + $instruct3 mem,$regtype1"  >> results2/exec_domain.txt
+$ass -f elf64 -o b64.o -Dinstruct1=$instruct2 -Dinstruct2=$instruct1 -Dinstruct3=$instruct3 -Dregtype1=$regtype1 -Dregtype2=$regtype1 -Dnumimm=0 -Dnumop1=2 -Drepeat1=$repeat1 -Dtmode=L12M -Pconvers.inc TemplateB64.nasm
+if [ $? -ne 0 ] ; then exit ; fi
+g++ -fno-pie -no-pie -m64 a64.o b64.o -ox -lpthread
+if [ $? -ne 0 ] ; then exit ; fi
+./x >> results2/exec_domain.txt
+fi
 
 done
 

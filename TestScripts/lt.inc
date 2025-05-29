@@ -1,8 +1,9 @@
-; lt.inc                                              2022-05-11 Agner Fog
+; lt.inc                                              2025-05-18 Agner Fog
 ;
-; Define universal test code to test latency and throughput for instructions with 0-4 register operands
+; Define universal test code to test latency and throughput for 
+; instructions with 0-4 register operands
 ; and optionally one immediate operand, 64 bit mode.
-; (c) Copyright 2013-2022 by Agner Fog. GNU General Public License www.gnu.org/licenses
+; (c) Copyright 2013-2025 by Agner Fog. GNU General Public License www.gnu.org/licenses
 ;
 ; Parameters:
 ;
@@ -30,7 +31,6 @@
 ;             M3:  measure throughput with memory source in operand 3 (only for numop = 4)
 ;             L2:  measure latency from operand 2 (only for numop = 4)
 ;             L4:  measure latency from operand 4 (only for numop = 4)
-;             S:   measure throughput with eight different destination registers (only for numop = 2)
 ;             A:   clear eax (only for numop = 0)
 ;             D:   clear eax and edx (only for numop = 0)
 ;
@@ -247,7 +247,7 @@
             instruct immoperands0
             blockOdd
          %endrep
-      %elifidni tmode,D         ; clear eax and edx
+      %elifidni tmode, D         ; clear eax and edx
          %rep 50
             xor eax,eax
             xor edx,edx
@@ -269,27 +269,34 @@
             instruct reg0 immoperands1
          %endrep
       %elifidni tmode, T         ; measure throughput with register operands
-         %rep 25
-            instruct reg0 immoperands1
-            blockEven
+         %if numregs < 8         ; use 4 registers
+            %rep 25
+               instruct reg0 immoperands1
+               blockEven
+               instruct reg1 immoperands1
+               blockOdd
+               instruct reg2 immoperands1
+               blockEven
+               instruct reg3 immoperands1
+               blockOdd
+            %endrep
+         %else                   ; use 8 registers
+            %rep 12                 ; 12*8 = 96
+               instruct reg0 immoperands1
+               instruct reg1 immoperands1
+               instruct reg2 immoperands1
+               instruct reg3 immoperands1
+               instruct reg4 immoperands1
+               instruct reg5 immoperands1
+               instruct reg6 immoperands1
+               instruct reg7 immoperands1
+            %endrep
+            instruct reg0 immoperands1 ; last 4
             instruct reg1 immoperands1
-            blockOdd
-            instruct reg2 immoperands1
-            blockEven
-            instruct reg3 immoperands1
-            blockOdd
-         %endrep
-      %elifidni tmode, S         ; measure throughput with 8 different register operands
-         %rep 25
-            instruct reg0 immoperands1
-            instruct reg1 immoperands1
             instruct reg2 immoperands1
             instruct reg3 immoperands1
-            instruct reg4 immoperands1
-            instruct reg5 immoperands1
-            instruct reg6 immoperands1
-            instruct reg7 immoperands1
-         %endrep
+         %endif
+         
       %elifidni tmode, M         ; measure throughput with memory operand
          %rep 10
             instruct sizeptr [rsi] immoperands1
@@ -369,7 +376,7 @@
             %endrep
          %endif
 
-      %elifidni tmode, S       ; measure throughput with eight different destination registers
+      %elifidni tmode, S       ; OBSOLETE? measure throughput with eight different destination registers
          %rep 25
             instruct reg1, reg0 immoperands1
             instruct reg2, reg0 immoperands1

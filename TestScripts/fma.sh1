@@ -1,8 +1,8 @@
 #!/bin/bash
 # 
 # Compile and run PMCTest for FMA3 and FMA4 instructions
-# (c) Copyright 2012-2021 by Agner Fog. GNU General Public License www.gnu.org/licenses
-# Last modified 2022-10-28
+# (c) Copyright 2012-2025 by Agner Fog. GPL3 License www.gnu.org/licenses
+# Last modified 2025-05-19
 
 # Detect CPU specific variables
 . vars.sh
@@ -22,7 +22,7 @@ regsize=128
 
 for instruct in vfmadd132ss vfmadd231ss vfmadd132sd vfmsub132sd vfnmadd132sd vfnmsub132sd
 do
-echo -e "\n\nLatency (all operands): $instruct r$regsize,r$regsize,r$regsize"  >> results1/fma.txt
+echo -e "\n\nLatency (all operands): $instruct v$regsize,v$regsize,v$regsize"  >> results1/fma.txt
 $ass -f elf64 -o b64.o -Dinstruct=$instruct -Dregsize=$regsize -Dnumop=3 -Dnumimm=0 -Dtmode=L0 -Drepeat0=$repeat0 -Plt.inc TemplateB64.nasm
 if [ $? -ne 0 ] ; then exit ; fi
 g++  -m64 a64.o b64.o -ox $gccoptions
@@ -32,7 +32,7 @@ done
 
 for instruct in vfmadd132ss vfmadd213ss vfmadd132sd vfmsub132sd vfnmadd132sd vfnmsub132sd
 do
-echo -e "\n\nLatency (mul operand): $instruct r$regsize,r$regsize,r$regsize"  >> results1/fma.txt
+echo -e "\n\nLatency (mul operand): $instruct v$regsize,v$regsize,v$regsize"  >> results1/fma.txt
 $ass -f elf64 -o b64.o -Dinstruct=$instruct -Dregsize=$regsize -Dnumop=3 -Dnumimm=0 -Dtmode=L0 -Drepeat0=$repeat0 -Plt.inc TemplateB64.nasm
 if [ $? -ne 0 ] ; then exit ; fi
 g++ -m64 a64.o b64.o -ox $gccoptions
@@ -42,7 +42,7 @@ done
 
 for instruct in vfmadd231ss vfmadd231sd vfmsub231sd vfnmadd231sd vfnmsub231sd
 do
-echo -e "\n\nLatency (add operand): $instruct r$regsize,r$regsize,r$regsize"  >> results1/fma.txt
+echo -e "\n\nLatency (add operand): $instruct v$regsize,v$regsize,v$regsize"  >> results1/fma.txt
 $ass -f elf64 -o b64.o -Dinstruct=$instruct -Dregsize=$regsize -Dnumop=3 -Dnumimm=0 -Dtmode=L0 -Drepeat0=$repeat0 -Plt.inc TemplateB64.nasm
 if [ $? -ne 0 ] ; then exit ; fi
 g++ -m64 a64.o b64.o -ox $gccoptions
@@ -52,7 +52,7 @@ done
 
 for instruct in vfmadd132ss vfmadd213ss vfmadd231ss vfmadd132sd vfmsub132sd vfnmadd132sd vfnmsub132sd
 do
-echo -e "\n\nThroughput: $instruct r$regsize,r$regsize,r$regsize"  >> results1/fma.txt
+echo -e "\n\nThroughput: $instruct v$regsize,v$regsize,v$regsize"  >> results1/fma.txt
 for cts in $PMClist
 do
 $ass -f elf64 -o b64.o -Dinstruct=$instruct -Dregsize=$regsize -Dnumop=3 -Dnumimm=0 -Dtmode=T0 -Dcounters=$cts -Drepeat0=$repeat0 -Plt.inc TemplateB64.nasm
@@ -62,7 +62,7 @@ if [ $? -ne 0 ] ; then exit ; fi
 ./x >> results1/fma.txt
 done
 
-echo -e "\n\nThroughput: $instruct r$regsize,r$regsize,[m$regsize]"  >> results1/fma.txt
+echo -e "\n\nThroughput: $instruct v$regsize,v$regsize,[m$regsize]"  >> results1/fma.txt
 for cts in $PMClist
 do
 $ass -f elf64 -o b64.o -Dinstruct=$instruct -Dregsize=$regsize -Dnumop=3 -Dnumimm=0 -Dtmode=M0 -Dcounters=$cts -Drepeat0=$repeat0 -Plt.inc TemplateB64.nasm
@@ -79,7 +79,7 @@ for instruct in vfmadd132ps vfmadd231ps vfmadd132pd vfmsub132pd vfnmadd132pd vfn
 do
 for regsize in 128 256
 do
-echo -e "\n\nLatency (all operands): $instruct r$regsize,r$regsize,r$regsize"  >> results1/fma.txt
+echo -e "\n\nLatency (all operands): $instruct v$regsize,v$regsize,v$regsize"  >> results1/fma.txt
 $ass -f elf64 -o b64.o -Dinstruct=$instruct -Dregsize=$regsize -Dnumop=3 -Dnumimm=0 -Dtmode=L0 -Drepeat0=$repeat0 -Plt.inc TemplateB64.nasm
 if [ $? -ne 0 ] ; then exit ; fi
 g++ -m64 a64.o b64.o -ox $gccoptions
@@ -92,7 +92,7 @@ for instruct in vfmadd132ps vfmadd213ps vfmadd132pd vfmsub132pd vfnmadd132pd vfn
 do
 for regsize in 128 256
 do
-echo -e "\n\nLatency (mul operand): $instruct r$regsize,r$regsize,r$regsize"  >> results1/fma.txt
+echo -e "\n\nLatency (mul operand): $instruct v$regsize,v$regsize,v$regsize"  >> results1/fma.txt
 $ass -f elf64 -o b64.o -Dinstruct=$instruct -Dregsize=$regsize -Dnumop=3 -Dnumimm=0 -Dtmode=L0 -Drepeat0=$repeat0 -Plt.inc TemplateB64.nasm
 if [ $? -ne 0 ] ; then exit ; fi
 g++ -m64 a64.o b64.o -ox $gccoptions
@@ -105,7 +105,7 @@ for instruct in vfmadd231ps vfmadd231pd vfmsub231pd vfnmadd231pd vfnmsub231pd
 do
 for regsize in 128 256
 do
-echo -e "\n\nLatency (add operand): $instruct r$regsize,r$regsize,r$regsize"  >> results1/fma.txt
+echo -e "\n\nLatency (add operand): $instruct v$regsize,v$regsize,v$regsize"  >> results1/fma.txt
 $ass -f elf64 -o b64.o -Dinstruct=$instruct -Dregsize=$regsize -Dnumop=3 -Dnumimm=0 -Dtmode=L0 -Drepeat0=$repeat0 -Plt.inc TemplateB64.nasm
 if [ $? -ne 0 ] ; then exit ; fi
 g++ -m64 a64.o b64.o -ox $gccoptions
@@ -118,7 +118,7 @@ for instruct in vfmadd132ps vfmadd213ps vfmadd231ps vfmadd132pd vfmsub132pd vfnm
 do
 for regsize in 128 256
 do
-echo -e "\n\nThroughput: $instruct r$regsize,r$regsize,r$regsize"  >> results1/fma.txt
+echo -e "\n\nThroughput: $instruct v$regsize,v$regsize,v$regsize"  >> results1/fma.txt
 for cts in $PMClist
 do
 $ass -f elf64 -o b64.o -Dinstruct=$instruct -Dregsize=$regsize -Dnumop=3 -Dnumimm=0 -Dtmode=T0 -Dcounters=$cts -Drepeat0=$repeat0 -Plt.inc TemplateB64.nasm
@@ -134,7 +134,7 @@ for instruct in vfmadd132ps vfmadd213ps vfmadd231ps vfmadd132pd vfmsub132pd vfnm
 do
 for regsize in 128 256
 do
-echo -e "\n\nThroughput: $instruct r$regsize,r$regsize,[m$regsize]"  >> results1/fma.txt
+echo -e "\n\nThroughput: $instruct v$regsize,v$regsize,[m$regsize]"  >> results1/fma.txt
 for cts in $PMClist
 do
 $ass -f elf64 -o b64.o -Dinstruct=$instruct -Dregsize=$regsize -Dnumop=3 -Dnumimm=0 -Dtmode=M0 -Dcounters=$cts -Drepeat0=$repeat0 -Plt.inc TemplateB64.nasm
@@ -160,28 +160,28 @@ for instruct in vfmaddss vfmaddsd vfmsubsd vfnmaddsd vfnmsubsd
 do
 regsize=128
 
-echo -e "\n\nLatency (all operands): $instruct r$regsize,r$regsize,r$regsize,r$regsize"  >> results1/fma.txt
+echo -e "\n\nLatency (all operands): $instruct v$regsize,v$regsize,v$regsize,v$regsize"  >> results1/fma.txt
 $ass -f elf64 -o b64.o -Dinstruct=$instruct -Dregsize=$regsize -Dnumop=4 -Dnumimm=0 -Dtmode=L -Drepeat0=$repeat0 -Plt.inc TemplateB64.nasm
 if [ $? -ne 0 ] ; then exit ; fi
 g++ -m64 a64.o b64.o -ox $gccoptions
 if [ $? -ne 0 ] ; then exit ; fi
 ./x >> results1/fma.txt
 
-echo -e "\n\nLatency (mul operand): $instruct r$regsize,r$regsize,r$regsize,r$regsize"  >> results1/fma.txt
+echo -e "\n\nLatency (mul operand): $instruct v$regsize,v$regsize,v$regsize,v$regsize"  >> results1/fma.txt
 $ass -f elf64 -o b64.o -Dinstruct=$instruct -Dregsize=$regsize -Dnumop=4 -Dnumimm=0 -Dtmode=L2 -Drepeat0=$repeat0 -Plt.inc TemplateB64.nasm
 if [ $? -ne 0 ] ; then exit ; fi
 g++ -m64 a64.o b64.o -ox $gccoptions
 if [ $? -ne 0 ] ; then exit ; fi
 ./x >> results1/fma.txt
 
-echo -e "\n\nLatency (add operand): $instruct r$regsize,r$regsize,r$regsize,r$regsize"  >> results1/fma.txt
+echo -e "\n\nLatency (add operand): $instruct v$regsize,v$regsize,v$regsize,v$regsize"  >> results1/fma.txt
 $ass -f elf64 -o b64.o -Dinstruct=$instruct -Dregsize=$regsize -Dnumop=4 -Dnumimm=0 -Dtmode=L4 -Drepeat0=$repeat0 -Plt.inc TemplateB64.nasm
 if [ $? -ne 0 ] ; then exit ; fi
 g++ -m64 a64.o b64.o -ox $gccoptions
 if [ $? -ne 0 ] ; then exit ; fi
 ./x >> results1/fma.txt
 
-echo -e "\n\nThroughput: $instruct r$regsize,r$regsize,r$regsize,r$regsize"  >> results1/fma.txt
+echo -e "\n\nThroughput: $instruct v$regsize,v$regsize,v$regsize,v$regsize"  >> results1/fma.txt
 for cts in $PMClist
 do
 $ass -f elf64 -o b64.o -Dinstruct=$instruct -Dregsize=$regsize -Dnumop=4 -Dnumimm=0 -Dtmode=T -Dcounters=$cts -Drepeat0=$repeat0 -Plt.inc TemplateB64.nasm
@@ -191,7 +191,7 @@ if [ $? -ne 0 ] ; then exit ; fi
 ./x >> results1/fma.txt
 done
 
-echo -e "\n\nThroughput: $instruct r$regsize,r$regsize,r$regsize,[m$regsize]"  >> results1/fma.txt
+echo -e "\n\nThroughput: $instruct v$regsize,v$regsize,v$regsize,[m$regsize]"  >> results1/fma.txt
 for cts in $PMClist
 do
 $ass -f elf64 -o b64.o -Dinstruct=$instruct -Dregsize=$regsize -Dnumop=4 -Dnumimm=0 -Dtmode=M -Dcounters=$cts -Drepeat0=$repeat0 -Plt.inc TemplateB64.nasm
@@ -207,21 +207,21 @@ do
 for regsize in 128 256
 do
 
-echo -e "\n\nLatency (mul operand): $instruct r$regsize,r$regsize,r$regsize,r$regsize"  >> results1/fma.txt
+echo -e "\n\nLatency (mul operand): $instruct v$regsize,v$regsize,v$regsize,v$regsize"  >> results1/fma.txt
 $ass -f elf64 -o b64.o -Dinstruct=$instruct -Dregsize=$regsize -Dnumop=4 -Dnumimm=0 -Dtmode=L2 -Drepeat0=$repeat0 -Plt.inc TemplateB64.nasm
 if [ $? -ne 0 ] ; then exit ; fi
 g++ -m64 a64.o b64.o -ox $gccoptions
 if [ $? -ne 0 ] ; then exit ; fi
 ./x >> results1/fma.txt
 
-echo -e "\n\nLatency (add operand): $instruct r$regsize,r$regsize,r$regsize,r$regsize"  >> results1/fma.txt
+echo -e "\n\nLatency (add operand): $instruct v$regsize,v$regsize,v$regsize,v$regsize"  >> results1/fma.txt
 $ass -f elf64 -o b64.o -Dinstruct=$instruct -Dregsize=$regsize -Dnumop=4 -Dnumimm=0 -Dtmode=L4 -Drepeat0=$repeat0 -Plt.inc TemplateB64.nasm
 if [ $? -ne 0 ] ; then exit ; fi
 g++ -m64 a64.o b64.o -ox $gccoptions
 if [ $? -ne 0 ] ; then exit ; fi
 ./x >> results1/fma.txt
 
-echo -e "\n\nThroughput: $instruct r$regsize,r$regsize,r$regsize,r$regsize"  >> results1/fma.txt
+echo -e "\n\nThroughput: $instruct v$regsize,v$regsize,v$regsize,v$regsize"  >> results1/fma.txt
 for cts in $PMClist
 do
 $ass -f elf64 -o b64.o -Dinstruct=$instruct -Dregsize=$regsize -Dnumop=4 -Dnumimm=0 -Dtmode=T -Dcounters=$cts -Drepeat0=$repeat0 -Plt.inc TemplateB64.nasm
@@ -231,7 +231,7 @@ if [ $? -ne 0 ] ; then exit ; fi
 ./x >> results1/fma.txt
 done
 
-echo -e "\n\nThroughput: $instruct r$regsize,r$regsize,r$regsize,[m$regsize]"  >> results1/fma.txt
+echo -e "\n\nThroughput: $instruct v$regsize,v$regsize,v$regsize,[m$regsize]"  >> results1/fma.txt
 $ass -f elf64 -o b64.o -Dinstruct=$instruct -Dregsize=$regsize -Dnumop=4 -Dnumimm=0 -Dtmode=M -Drepeat0=$repeat0 -Plt.inc TemplateB64.nasm
 if [ $? -ne 0 ] ; then exit ; fi
 g++ -m64 a64.o b64.o -ox $gccoptions

@@ -1,5 +1,5 @@
 ;----------------------------------------------------------------------------
-;                       fused_branch.inc                 2021-04-07 Agner Fog
+;                       fused_branch.inc                 2025-05-18 Agner Fog
 ;
 ;            PMC Test program for fusion of compare and branch instructions
 ;                           NASM syntax
@@ -32,7 +32,7 @@
 ; instr1:       ALU instruction (case 0 only)
 ; instr2:       branch instruction (case 0 only)
 ;
-; (c) Copyright 2013 - 2021 by Agner Fog. 
+; (c) Copyright 2013 - 2025 by Agner Fog. 
 ; GNU General Public License www.gnu.org/licenses
 ;-----------------------------------------------------------------------------
 

@@ -53,7 +53,7 @@ echo -e "Test decoding on loops bigger than microop cache size"  > results2/deco
 echo -e "\nCase 1. Loop with short NOPs"  >> results2/decoder_throughput.txt
 
 nthreads=1
-repeatn=100
+repeatn=10000
 tcase=1
 noptype=2
 nopsize=1

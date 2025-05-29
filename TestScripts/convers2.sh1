@@ -1,8 +1,8 @@
 #!/bin/bash
-#                                                        2013-07-05 Agner Fog
+#                                           2025-05-19 Agner Fog
 # Compile and run PMCTest for various type conversion instructions that have
 # different register types for input and output. AVX and AVX2 instruction set
-# (c) Copyright 2013 by Agner Fog. GNU General Public License www.gnu.org/licenses
+# (c) Copyright 2013-2025 by Agner Fog. GPL3 License www.gnu.org/licenses
 
 # Exit if AVX not supported
 if  [ `grep -c -i "avx" cpuinfo.txt ` -eq 0 ] ; then exit ; fi
@@ -474,13 +474,13 @@ instruct=vmovntdqa
 for regsize in  128 256
 do
 
-echo -e "\n\nThroughput: $instruct r$regsize,m$regsize"  >> results1/convers2.txt
+echo -e "\n\nThroughput: $instruct v$regsize,m$regsize"  >> results1/convers2.txt
 for cts in $PMClist
 do
 $ass -f elf64 -o b64.o -Dinstruct=$instruct -Dregsize=$regsize -Dtcase=xx -Dtmode=TM -Dcounters=$cts -Pconvers2.inc TemplateB64.nasm
 if [ $? -ne 0 ] ; then 
-  echo "assembling $instruct r$regsize,m$regsize failed"
-  echo "assembling $instruct r$regsize,m$regsize" >> results1/convers2.txt
+  echo "assembling $instruct v$regsize,m$regsize failed"
+  echo "assembling $instruct v$regsize,m$regsize" >> results1/convers2.txt
 else
 g++ -fno-pie -no-pie -m64 a64.o b64.o -ox -lpthread
 if [ $? -eq 0 ] ; then 
@@ -489,11 +489,11 @@ fi
 fi
 done
 
-echo -e "\n\nLatency: $instruct r$regsize,m$regsize + vmovdqa m$regsize,r$regsize"  >> results1/convers2.txt
+echo -e "\n\nLatency: $instruct v$regsize,m$regsize + vmovdqa m$regsize,v$regsize"  >> results1/convers2.txt
 $ass -f elf64 -o b64.o -Dinstruct=$instruct -Dregsize=$regsize -Dtcase=xy -Dtmode=LM -Pconvers2.inc TemplateB64.nasm
 if [ $? -ne 0 ] ; then
-  echo "assembling $instruct r$regsize,m$regsize + vmovdqa m$regsize,r$regsize failed"
-  echo "assembling $instruct r$regsize,m$regsize + vmovdqa m$regsize,r$regsize failed" >> results1/convers2.txt
+  echo "assembling $instruct v$regsize,m$regsize + vmovdqa m$regsize,v$regsize failed"
+  echo "assembling $instruct v$regsize,m$regsize + vmovdqa m$regsize,v$regsize failed" >> results1/convers2.txt
 else
 g++ -fno-pie -no-pie -m64 a64.o b64.o -ox -lpthread
 if [ $? -eq 0 ] ; then 
@@ -519,13 +519,13 @@ do
 for regsize in  128 256
 do
 
-echo -e "\n\nThroughput: $instruct r32,r$regsize"  >> results1/convers2.txt
+echo -e "\n\nThroughput: $instruct r32,v$regsize"  >> results1/convers2.txt
 for cts in $PMClist
 do
 $ass -f elf64 -o b64.o -Dinstruct=$instruct -Dregsize=$regsize -Dtcase=rx -Dtmode=T -Dcounters=$cts -Pconvers2.inc TemplateB64.nasm
 if [ $? -ne 0 ] ; then
-  echo "assembling $instruct r32,r$regsize failed"
-  echo "assembling $instruct r32,r$regsize failed" >> results1/convers2.txt
+  echo "assembling $instruct r32,v$regsize failed"
+  echo "assembling $instruct r32,v$regsize failed" >> results1/convers2.txt
 else
 g++ -fno-pie -no-pie -m64 a64.o b64.o -ox -lpthread
 if [ $? -eq 0 ] ; then 
@@ -534,7 +534,7 @@ fi
 fi
 done
 
-echo -e "\n\nLatency: $instruct r32,r$regsize + movd r128,r21"  >> results1/convers2.txt
+echo -e "\n\nLatency: $instruct r32,v$regsize + movd r128,r21"  >> results1/convers2.txt
 $ass -f elf64 -o b64.o -Dinstruct=$instruct -Dregsize=$regsize -Dtcase=rx -Dtmode=LI -Pconvers2.inc TemplateB64.nasm
 if [ $? -ne 0 ] ; then
   echo "assembling $instruct failed"
