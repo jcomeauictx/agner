@@ -1,4 +1,4 @@
-//                       PMCTestB.cpp                    2014-04-15 Agner Fog
+//                       PMCTestB.cpp                    2025-05-17 Agner Fog
 //
 //          Multithread PMC Test program for Windows and Linux
 //
@@ -20,7 +20,7 @@
 //
 // See PMCTest.txt for instructions.
 //
-// © 2000-2014 GNU General Public License www.gnu.org/licences
+// © 2000-2025 GNU General Public License www.gnu.org/licences
 //////////////////////////////////////////////////////////////////////////////
 
 #include "PMCTest.h"
@@ -93,7 +93,7 @@ extern "C" {
     int NumThreads = NUM_THREADS;       // Number of threads
     int NumCounters = 0;                // Number of valid PMC counters in Counters[]
     int MaxNumCounters = MAXCOUNTERS;   // Maximum number of PMC counters
-    int UsePMC = USE_PERFORMANCE_COUNTERS;// 0 if no PMC counters used
+    int UsePMC = USE_PERFORMANCE_COUNTERS;// 0 if no PMC counters used. Also set to 0 if driver not loaded
     int *PThreadData = (int*)ThreadData;// Pointer to measured data for all threads
     int ThreadDataSize = sizeof(SThreadData);// Size of per-thread counter data block (bytes)
     // offset of clock results of first thread into ThreadData (bytes)
@@ -138,8 +138,11 @@ int TestLoop (int thread) {
     // and reads the counters before and after each run:
     int i;                        // counter index
     int repi;                     // repetition index
+    int numcounters;              // number of performance counters used
 
-    for (i = 0; i < MAXCOUNTERS+1; i++) {
+    numcounters = UsePMC ? MAXCOUNTERS : 0; // number of counters to use
+
+    for (i = 0; i < numcounters+1; i++) {
         ThreadData[thread].CountOverhead[i] = 0x7FFFFFFF;
     }
 
@@ -165,14 +168,14 @@ int TestLoop (int thread) {
         Serialize();
 
 #if USE_PERFORMANCE_COUNTERS
-        // Read counters
-        for (i = 0; i < MAXCOUNTERS; i++) {
+        // Read performance counters
+        for (i = 0; i < numcounters; i++) {
             ThreadData[thread].CountTemp[i+1] = (int)Readpmc(Counters[i]);
         }
 #endif
 
         Serialize();
-        ThreadData[thread].CountTemp[0] = (int)Readtsc();
+        ThreadData[thread].CountTemp[0] = (int)Readtsc(); // read time stamp counter
         Serialize();
 
         // no test code here
@@ -183,14 +186,15 @@ int TestLoop (int thread) {
 
 #if USE_PERFORMANCE_COUNTERS
         // Read counters
-        for (i = 0; i < MAXCOUNTERS; i++) {
+        for (i = 0; i < numcounters; i++) {
             ThreadData[thread].CountTemp[i+1] -= (int)Readpmc(Counters[i]);
         }
 #endif
+
         Serialize();
 
         // find minimum counts
-        for (i = 0; i < MAXCOUNTERS+1; i++) {
+        for (i = 0; i < numcounters+1; i++) {
             if (-ThreadData[thread].CountTemp[i] < ThreadData[thread].CountOverhead[i]) {
                 ThreadData[thread].CountOverhead[i] = -ThreadData[thread].CountTemp[i];
             }
@@ -205,14 +209,14 @@ int TestLoop (int thread) {
         Serialize();
 
 #if USE_PERFORMANCE_COUNTERS
-        // Read counters
-        for (i = 0; i < MAXCOUNTERS; i++) {
+        // Read performance counters
+        for (i = 0; i < numcounters; i++) {
             ThreadData[thread].CountTemp[i+1] = (int)Readpmc(Counters[i]);
         }
 #endif
 
         Serialize();
-        ThreadData[thread].CountTemp[0] = (int)Readtsc();
+        ThreadData[thread].CountTemp[0] = (int)Readtsc(); // read time stamp counter
         Serialize();
 
 
@@ -241,7 +245,7 @@ int TestLoop (int thread) {
 
 #if USE_PERFORMANCE_COUNTERS
         // Read counters
-        for (i = 0; i < MAXCOUNTERS; i++) {
+        for (i = 0; i < numcounters; i++) {
             ThreadData[thread].CountTemp[i+1] -= (int)Readpmc(Counters[i]);
         }
 #endif
@@ -249,7 +253,7 @@ int TestLoop (int thread) {
 
         // subtract overhead
         ThreadData[thread].ClockResults[repi] = -ThreadData[thread].CountTemp[0] - ThreadData[thread].CountOverhead[0];
-        for (i = 0; i < MAXCOUNTERS; i++) {
+        for (i = 0; i < numcounters; i++) {
             ThreadData[thread].PMCResults[repi+i*REPETITIONS] = -ThreadData[thread].CountTemp[i+1] - ThreadData[thread].CountOverhead[i+1];
         }
     }
