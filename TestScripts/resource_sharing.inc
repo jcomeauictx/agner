@@ -1,5 +1,5 @@
 ;----------------------------------------------------------------------------
-;        resource_sharing.inc                          2013-07-09 Agner Fog
+;        resource_sharing.inc                          2025-05-18 Agner Fog
 ;
 ; PMC Test program for testing whether various resources are shared between
 ; multiple CPU cores
@@ -22,12 +22,22 @@
 ; 
 ; nthreads:     Number of simultaneous threads (default = 3)
 ; 
+; repeat1:      Number of repetitions of testcode macro, typically containing 100 instructions
+;
 ; counters:     A comma-separated list of PMC counter numbers 
 ;               (referring to CounterDefinitions in PMCTestA.cpp)
 ;
-; (c) Copyright 2013 by Agner Fog. GNU General Public License www.gnu.org/licenses
+; (c) Copyright 2013-2025 by Agner Fog. GNU General Public License GPL3 www.gnu.org/licenses
 ;-----------------------------------------------------------------------------
 ; Define any undefined macros
+
+; default test loops
+%ifndef repeat1
+   %define repeat1 1000
+%endif
+%ifndef repeat2
+   %define repeat2 1
+%endif
 
 ; define long nops
 %ifndef noptype
@@ -315,6 +325,3 @@
    %error unknown test case tcase
 %endif
 
-; default test loops
-%define repeat1 1000
-%define repeat2 1

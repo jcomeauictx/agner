@@ -1,11 +1,11 @@
 #!/bin/bash
-#                                                       2022-10-28 Agner Fog
+#                                                       2025-05-19 Agner Fog
 # runlist.sh
 # Compile, assemble and run PMCTest to measure latency and throughput for
 # multiple instructions specified in a comma-separated list
-# (c) Copyright 2016-2021 by Agner Fog. GNU General Public License www.gnu.org/licenses
+# (c) Copyright 2016-2025 by Agner Fog. GNU General Public License www.gnu.org/licenses
 
-#################################################################################################################
+###############################################################################################
 #
 # The list file is specified on the command line.
 # Format for the list file:
@@ -19,7 +19,6 @@
 # 3. Number of operands (register or memory), except immediate operands
 # 4. Value of immediate operand, blank or n for none
 # 5. Test mode: L = latency, T = throughput, M = throughput with memory operand, LTM = all these.
-# (S is the same as T but with 8 different destination registers rather than 5. This sometimes makes a difference on AMD)
 #    RNDTR: measure round trip latency of 2 or 3 instructions (see below),
 #    MASKxxx: measure latency and throughput of instructions involving mask registers (see below),
 #    DIV: division and square root instructions (best and worst case),
@@ -33,14 +32,15 @@
 # $file=xxx: Specify name for output file. 
 #   Warning: This will delete and overwrite any data already written to that filename.
 # $outdir=xxx: Specify directory for output file.
-# $text=xxx: Copy this text to the output file. (Enclose "$text=xxx" in quotation marks if it contains commas)
+# $text=xxx: Copy this text to the output file. 
+# (Enclose "$text=xxx" in quotation marks if it contains commas)
 # $repeat0=xxx: Set number of repetitions of each test. Default = 8
 # $repeat1=xxx: Set repeat count for loop around testcode. Default = 10
 # $repeat2=xxx: Set repeat count for repeat macro around testcode. Default = 100
 # $list=1: Turn on assembly output listing.
 #
 # The file must end with a blank line
-#################################################################################################################
+################################################################################################
 #
 # LTM test modes:
 # Possible additional options: 
@@ -49,23 +49,25 @@
 # elementsize: Size of vector elements (bits). Only required if regval0/1 specified. Default = 32
 # 3op: 3-operand instruction where first operand is both source and destination
 #
-#################################################################################################################
+#################################################################################################
 #
 # RNDTR test mode: 
-# This is useful for testing latencies of instructions with different register types for input and output.
+# This is for testing latencies of instructions with different register types for input and output.
 # Specify two or three instructions, separated by /
 # Specify the register types, separated by /. These are the source operand types for each instruction.
 # (The destination type is the source type for the next instruction).
-# Specify the number of operands for each instruction (2 or 3), separated by /. This includes register and memory 
-# operands but not immediate operands. "3x" indicates that the first source operand is the same type as the 
+# Specify the number of operands for each instruction (2 or 3), separated by /. 
+# This includes register and memory operands but not immediate operands. 
+# "3x" indicates that the first source operand is the same type as the 
 # destination operand, while the second source operand has the type indicated.
-# Specify the immediate operands if necessary, separated by /. Write "n" for none, or blank for all none.
-# The second or third instruction may be set to "n" to indicate implicit conversion between different sizes of 
-# the same register.
-# The throughputs of each instruction can also be measured. Specify the number of instruction to measure
-# the throughput for as a number suffix, for example RNDTR2 will measure the throughput of the first two 
-# instructions in addition to the roundtrip latency.
-#################################################################################################################
+# Specify the immediate operands if necessary, separated by /. 
+# Write "n" for none, or blank for all none.
+# The second or third instruction may be set to "n" to indicate implicit conversion between 
+# different sizes of the same register.
+# The throughputs of each instruction can also be measured. Specify the number of instruction
+# to measure the throughput for as a number suffix, for example RNDTR2 will measure the 
+# throughput of the first two instructions in addition to the roundtrip latency.
+###########################################################################################
 #
 # MASK test modes:
 # MASKCMPL, MASKCMPT, MASKCMPLT: Measure latency and/or throughput of instructions that have a mask register output,
@@ -77,7 +79,7 @@
 # The size of the mask register can be specified in the options field as "masksize=n" (default=16)
 # A zeroing option {z} can be specified in the options field as "usezero"
 #
-#################################################################################################################
+##############################################################################################
 #
 # DIV test modes: DIVL, DIVT, DIVLT
 # Measure latency and/or throughput of floating point division, squareroot, reciprocal and reciprocal squareroot
@@ -87,7 +89,7 @@
 # The size of the mask register can be specified in the options field as "masksize=n" (default=16)
 # A zeroing option {z} can be specified in the options field as "usezero"
 #
-#################################################################################################################
+###############################################################################################
 #
 # GATHER test modes: 
 # GATHER_CONTIGUOUS: contiguous elements in memory are gathered or scattered
@@ -102,14 +104,14 @@
 # The immediate operand field can be set to an initial value for the mask. e.g. -1 for all elements, 1 for a single element
 # The options field must be set to "masktype=k" to use a mask register for status mask, or "masktype=v" to use a vector register
 #
-#################################################################################################################
+#############################################################################################
 #
 # User-defined test modes: 
 # Define the necessary code as assembly macros in a file xxx.inc. Define it in the test mode field as macros=xxx.inc
 # The options instruct, regsize, numop, numimm and immvalue are transferred to the assembly code.
 # Extra options to transfer to the assembly code can be defined in the options field as option=value (separated by space)
 # 
-#################################################################################################################
+#############################################################################################
 
 
 # Detect CPU specific variables
@@ -355,7 +357,7 @@ if [[ "$tmode" =~ ^[LTMUSltmus]+$ ]] ; then  # tmode contains only L,T,M,U,S. Th
       text3="$numop register operands"
       pmclist="$PMClist"
       if [[ "$options" =~ "3op" ]] ; then tmodei="T0" ; fi
-    elif [[ $tmodei == "S" ]] ; then
+    elif [[ $tmodei == "S" ]] ; then  # no longer used
       text1="Throughput (8 registers)"
       text3="$numop register operands"
       pmclist="$PMClist"
@@ -457,7 +459,9 @@ elif [[ "$tmode" =~ ^RNDTR[0-3]?$ ]] ; then
     if [[ $immvaluei != "" && $immvaluei != "n" ]] ; then
       splitnumimm[$i]=1
     fi
-    if [[ -z ${splitnumop[$i]} || ${splitnumop[$i]} < 2 ]] ; then
+    if [[ -z ${splitnumop[$i]} ]] ; then
+      echo Missing operands for instruction ${splitinstruct[$i]}
+    elif [[ ${splitnumop[$i]} != "3x" && ${splitnumop[$i]} -lt 2 ]] ; then
       echo Wrong number of operands for instruction ${splitinstruct[$i]}
       continue 2
     fi
@@ -523,7 +527,7 @@ macros="mask.inc"  # file containing assembly macros
     if [[ $immvaluei != "" && $immvaluei != "n" ]] ; then
       splitnumimm[$i]=1
     fi
-    if [[ -z ${splitnumop[$i]} || ${splitnumop[$i]} < 2 || ${splitnumop[$i]} > 3 ]] ; then
+    if [[ -z ${splitnumop[$i]} || ${splitnumop[$i]} -lt 2 || ${splitnumop[$i]} > 3 ]] ; then
       echo Wrong number of operands for instruction ${splitinstruct[$i]}
       continue 2
     fi
@@ -571,7 +575,7 @@ macros="mask.inc"  # file containing assembly macros
     parameters="-Dtmode=$tmode12 $par1 $par2 $par3"
 
     # output text
-    if [[ $numop1 > 2 ]] ; then text2=", r$regsize" ; else text2="" ; fi
+    if [[ $numop1 > 2 ]] ; then text2=", v$regsize" ; else text2="" ; fi
     if [[ $numimm1 > 0 ]] ; then text3=", $immvalue1" ; else text3="" ; fi
     if [[ $masksize > 0 ]] ; then 
       text4="{k}"
@@ -584,26 +588,26 @@ macros="mask.inc"  # file containing assembly macros
     pmclist="$PMCs"
     if [[ $tmode12 == "MASKCMPL" ]] ; then
       text="$instruct1: Latency through mask register ($tmode12)\n"
-      text="$text$instruct1 k{k}, r$regsize$text2$text3"
+      text="$text$instruct1 k{k}, v$regsize$text2$text3"
     elif [[ $tmode12 == "MASKCMPT" ]] ; then
       text="$instruct1: Throughput ($tmode12)\n"
-      text="$text$instruct1 k$text4, r$regsize$text2$text3"
+      text="$text$instruct1 k$text4, v$regsize$text2$text3"
       pmclist="$PMClist"
     elif [[ $tmode12 == "MASKBLENDL" ]] ; then
-      if [[ $numop2 > 2 ]] ; then text21=", r$regsize" ; else text21="" ; fi
+      if [[ $numop2 > 2 ]] ; then text21=", v$regsize" ; else text21="" ; fi
       if [[ $numimm2 > 0 ]] ; then text22=", $immvalue2" ; else text22="" ; fi
       text="$instruct1: Round trip latency through mask and vector register ($tmode12)\n"
-      text="$text$instruct1 r$regsize{k}, r$regsize$text2$text3\n"
-      text="$text$instruct2 k, r$regsize$text21$text22"
+      text="$text$instruct1 v$regsize{k}, v$regsize$text2$text3\n"
+      text="$text$instruct2 k, v$regsize$text21$text22"
     elif [[ $tmode12 == "MASKBLENDT" ]] ; then
       text="$instruct1: Throughput ($tmode12)\n"
-      text="$text$instruct1 r$regsize{k}, r$regsize$text2$text3$text5"
+      text="$text$instruct1 v$regsize{k}, v$regsize$text2$text3$text5"
     elif [[ $tmode12 == "MASKL" ]] ; then
       text="$instruct1: Latency ($tmode12)\n"
-      text="$text$instruct1 r$regsize$text4$text6, r$regsize$text2$text3$text5"
+      text="$text$instruct1 v$regsize$text4$text6, v$regsize$text2$text3$text5"
     elif [[ $tmode12 == "MASKT" ]] ; then
       text="$instruct1: Throughput ($tmode12)\n"
-      text="$text$instruct1 r$regsize$text4$text6, r$regsize$text2$text3$text5"
+      text="$text$instruct1 v$regsize$text4$text6, v$regsize$text2$text3$text5"
     else
       echo "Unknown test mode $tmode12"
       continue
@@ -658,8 +662,8 @@ elif [[ "$tmode" =~ ^DIV.+$ ]] ; then
   par1="-Dinstruct=$instruct -Dregsize=$regsize -Dnumop=$numop "
   par2="-Dusezero=$usezero -Dnmask=$nmask -Dmasksize=$masksize"
   par3="-Drepeat0=$repeat0 -Drepeat1=$repeat1 -Drepeat2=$repeat2"
-
-  # L and T modes
+  
+    # L and T modes
   tmode2=${tmode:3}
   for ((j=0; j<${#tmode2}; j++)); do
     tmode12=${tmode2:$j:1}  # L or T
@@ -680,7 +684,7 @@ elif [[ "$tmode" =~ ^DIV.+$ ]] ; then
 
       # output text
       if [[ $tmode12 == "L" ]] ; then text1="Latency" ; else text1="Throughput" ; fi
-      if [[ $numop > 2 ]] ; then text2=", r$regsize" ; else text2="" ; fi
+      if [[ $numop > 2 ]] ; then text2=", $regtype$regsize" ; else text2="" ; fi
       if [[ $masksize > 0 ]] ; then 
         text4="{k}"
         text5=" (mask = $nmask)"
@@ -690,7 +694,7 @@ elif [[ "$tmode" =~ ^DIV.+$ ]] ; then
       fi
 
       if [ $usezero -eq 1 ] ; then text6="{z}" ; else text6="" ; fi
-      echo -e "\n$text1: $instruct r$regsize$text4$text6, r$regsize$text2 ; $text5 $tcase case" >> $outdir/$outfile
+      echo -e "\n$text1: $instruct $regtype$regsize$text4$text6, $regtype$regsize$text2 ; $text5 $tcase case" >> $outdir/$outfile
       # echo Parameters=$parameters
 
       IFS=" "
@@ -757,12 +761,12 @@ elif [[ "$tmode" =~ ^GATHER.*$ ]] ; then
   # Calculate number of elements
   delements=$(($regsize1/$datasize))
   ielements=$(($regsizei/$indexsize))
-  if [[ $delements < $ielements ]] ; then numelements=$delements ; else numelements=$ielements ; fi
+  if [[ $delements -lt $ielements ]] ; then numelements=$delements ; else numelements=$ielements ; fi
   # Calculate reduced number of elements if mask != -1
   if [[ ! -z  $immvalue ]] ; then
     m1=$(( (1<<$numelements)-1 ))
     m2=$(( $immvalue & $m1 ))  # isolate the relevant $numelements bits of the mask
-    if [[ "$m2 < $m1" ]] ; then
+    if [[ "$m2 -lt $m1" ]] ; then
       numelements=0   # the mask is not all 1's. Count the 1 bits:
       while [[ $m2 != 0 ]] ; do
         m2=$(( $m2 & ($m2-1) ))

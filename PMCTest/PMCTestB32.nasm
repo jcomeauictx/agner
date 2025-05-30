@@ -1,5 +1,5 @@
 ;----------------------------------------------------------------------------
-;                        PMCTestB32.nasm              © 2022-10-28 Agner Fog
+;                        PMCTestB32.nasm              © 2025-05-18 Agner Fog
 ;
 ;                PMC Test program for multiple threads
 ;                           NASM syntax
@@ -23,7 +23,7 @@
 ; 
 ; See PMCTest.txt for instructions.
 ; 
-; (c) Copyright 2000 - 2022 by Agner Fog. GNU General Public License www.gnu.org/licenses
+; (c) Copyright 2000 - 2025 by Agner Fog. GNU General Public License www.gnu.org/licenses
 ;----------------------------------------------------------------------------
 
 ; Define whether AVX and YMM registers used
@@ -67,13 +67,13 @@ SECTION .data   align = CACHELINESIZE
 ; Here you can select which performance monitor counters you want for your test.
 ; Select id numbers from the table CounterDefinitions[] in PMCTestA.cpp.
 
-%define USE_PERFORMANCE_COUNTERS   1        ; Tell if you are using performance counters
+%define USE_PERFORMANCE_COUNTERS   1   ; Tell if you are using performance counters
 
 ; Maximum number of PMC counters
-%define MAXCOUNTERS   6              ; must match value in PMCTest.h
+%define MAXCOUNTERS   6                ; must match value in PMCTest.h
 
 ; Number of PMC counters
-%define NUM_COUNTERS  4              ; must match value in PMCTest.h
+%define NUM_COUNTERS  4                ; must match value in PMCTest.h
 
 CounterTypesDesired:
     DD      1        ; core cycles (Intel only)
@@ -277,7 +277,10 @@ TEST_LOOP_1:
 
         SERIALIZE
 
-        mov     ebx, [esp+4]      
+        xor     eax, eax
+        mov     ebx, [esp+4]                  ; thread data block
+        cmp     [UsePMC], eax                 ; skip if counters disabled
+        je      NOCOUNTERS1
         ; Read counters
 %assign i  0
 %rep    NUM_COUNTERS
@@ -286,6 +289,7 @@ TEST_LOOP_1:
         mov     [ebx + i*4 + 4 + (CountTemp-ThreadData)], eax
 %assign i  i+1
 %endrep
+NOCOUNTERS1:
 
         SERIALIZE
 
@@ -307,7 +311,11 @@ TEST_LOOP_1:
 
         SERIALIZE
 
-        mov     ebx, [esp+4]      
+        xor     eax, eax
+        mov     ebx, [esp+4] 
+        cmp     [UsePMC], eax                 ; skip if counters disabled
+        je      NOCOUNTERS2
+        
         ; Read counters
 %assign i  0
 %rep    NUM_COUNTERS
@@ -316,6 +324,7 @@ TEST_LOOP_1:
         sub     [ebx + i*4 + 4 + (CountTemp-ThreadData)], eax  ; CountTemp[i+1]
 %assign i  i+1
 %endrep
+NOCOUNTERS2:
 
         SERIALIZE
 
@@ -332,7 +341,7 @@ TEST_LOOP_1:
 %assign i  i+1
 %endrep
         
-        ; end second test loop
+        ; end first test loop
         inc     dword [esp+8]
         cmp     dword [esp+8], OVERHEAD_REPETITIONS
         jb      TEST_LOOP_1
@@ -346,8 +355,11 @@ TEST_LOOP_1:
 TEST_LOOP_2:
 
         SERIALIZE
-      
-        mov     ebx, [esp+4]      
+        xor     eax, eax
+        mov     ebx, [esp+4]
+        cmp     [UsePMC], eax                 ; skip if counters disabled
+        je      NOCOUNTERS3
+
         ; Read counters
 %assign i  0
 %rep    NUM_COUNTERS
@@ -356,6 +368,7 @@ TEST_LOOP_2:
         mov     [ebx + i*4 + 4 + (CountTemp-ThreadData)], eax
 %assign i  i+1
 %endrep
+NOCOUNTERS3:
 
         SERIALIZE
 
@@ -399,7 +412,11 @@ TEST_LOOP_2:
 
         SERIALIZE
 
-        mov     ebx, [esp+4]      
+        xor     eax, eax
+        mov     ebx, [esp+4]
+        cmp     [UsePMC], eax                 ; skip if counters disabled
+        je      NOCOUNTERS4
+
         ; Read counters
 %assign i  0
 %rep    NUM_COUNTERS
@@ -407,7 +424,8 @@ TEST_LOOP_2:
         rdpmc
         sub     [ebx + i*4 + 4 + (CountTemp-ThreadData)], eax  ; CountTemp[i+1]
 %assign i  i+1
-%endrep        
+%endrep 
+NOCOUNTERS4:
 
         SERIALIZE
 

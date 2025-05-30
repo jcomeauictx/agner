@@ -1,5 +1,5 @@
 ;----------------------------------------------------------------------------
-;                       TemplateB64.nasm                2022-10-28 Agner Fog
+;                       TemplateB64.nasm                2025-05-18 Agner Fog
 ;
 ;                PMC Test program for multiple threads
 ;                           NASM syntax
@@ -71,7 +71,7 @@
 ; 
 ; See PMCTestB64.nasm and PMCTest.txt for general instructions.
 ; 
-; (c) 2000-2018 GNU General Public License www.gnu.org/licenses
+; (c) 2000-2025 GPL3 www.gnu.org/licenses
 ; 
 ;-----------------------------------------------------------------------------
 
@@ -193,6 +193,10 @@
       %define regtype r
    %elif regsize == 65
       %define regtype mmx
+   %elif regsize == 66
+      %define regtype k
+   %elif regsize == 67
+      %define regtype k
    %else
       %define regtype v
    %endif
@@ -261,6 +265,10 @@
    %elif regsize == 32
       %define sizeptr dword
    %elif regsize == 64
+      %define sizeptr qword
+   %elif regsize == 66
+      %define sizeptr word
+   %elif regsize == 67
       %define sizeptr qword
    %else
       %error unknown size for mask registers
@@ -640,6 +648,9 @@ Warmuploop:
 TEST_LOOP_1:
 
         SERIALIZE
+
+        cmp     byte [UsePMC], 0               ; skip if counters disabled
+        je      NOCOUNTERS1
       
         ; Read counters
 %assign i  0
@@ -649,7 +660,7 @@ TEST_LOOP_1:
         mov     [r13 + i*4 + 4 + (CountTemp-ThreadData)], eax
 %assign i  i+1
 %endrep
-      
+NOCOUNTERS1:      
 
         SERIALIZE
 
@@ -669,6 +680,9 @@ TEST_LOOP_1:
 
         SERIALIZE
 
+        cmp     byte [UsePMC], 0                           ; skip if counters disabled
+        je      NOCOUNTERS2
+
         ; Read counters
 %assign i  0
 %rep    NUM_COUNTERS
@@ -677,6 +691,7 @@ TEST_LOOP_1:
         sub     [r13 + i*4 + 4 + (CountTemp-ThreadData)], eax
 %assign i  i+1
 %endrep
+NOCOUNTERS2:
 
         SERIALIZE
 
@@ -692,7 +707,7 @@ TEST_LOOP_1:
 %assign i  i+1
 %endrep
         
-        ; end second test loop
+        ; end first test loop
         inc     r14d
         cmp     r14d, OVERHEAD_REPETITIONS
         jb      TEST_LOOP_1
@@ -701,7 +716,7 @@ TEST_LOOP_1:
 
         
 ; Second test loop. Measure user code
-        xor     r14d, r14d                    ; Loop counter
+        xor     r14d, r14d                  ; Loop counter
 
 TEST_LOOP_2:
 
@@ -710,6 +725,9 @@ TEST_LOOP_2:
 %endif
 
         SERIALIZE
+
+        cmp     byte [UsePMC], 0            ; skip if counters disabled
+        je      NOCOUNTERS3
       
         ; Read counters
 %assign i  0
@@ -719,6 +737,7 @@ TEST_LOOP_2:
         mov     [r13 + i*4 + 4 + (CountTemp-ThreadData)], eax
 %assign i  i+1
 %endrep
+NOCOUNTERS3:
 
         SERIALIZE
 
@@ -779,9 +798,12 @@ REPETITIONS1LOOP:
 
         ; read time stamp counter
         rdtsc
-        sub     [r13 + (CountTemp-ThreadData)], eax        ; CountTemp[0]
+        sub     [r13 + (CountTemp-ThreadData)], eax            ; CountTemp[0]
 
         SERIALIZE
+
+        cmp     byte [UsePMC], 0                               ; skip if counters disabled
+        je      NOCOUNTERS4
 
         ; Read counters
 %assign i  0
@@ -791,6 +813,7 @@ REPETITIONS1LOOP:
         sub     [r13 + i*4 + 4 + (CountTemp-ThreadData)], eax  ; CountTemp[i+1]
 %assign i  i+1
 %endrep
+NOCOUNTERS4:
 
         SERIALIZE
 

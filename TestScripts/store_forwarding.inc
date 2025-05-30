@@ -1,7 +1,7 @@
-; store_forwarding.inc                 2021-03-23 Agner Fog
+; store_forwarding.inc                 2025-05-18 Agner Fog
 
 ; Test cache access time
-; (c) 2013-2021 by Agner Fog. GNU General Public License www.gnu.org/licenses
+; (c) 2013-2025 by Agner Fog. GPL3 www.gnu.org/licenses
 
 ; Parameters:
 ;
