@@ -8,6 +8,7 @@ PROJECT_MAKEFILES := $(wildcard */Makefile */*/Makefile)
 # set IGNORESPACE= on command line to see difference in whitespace
 # set IGNORESPACE=q to just get a list of files that are different
 IGNORESPACE ?= w
+SUBDIRS := DriverSrcLinux DriverSrcWin PMCTest TestScripts
 ifeq ($(SHOWENV),)
 	export TIMESTAMP
 else
@@ -45,8 +46,8 @@ uninstall:
 	$(MAKE) -C src/driver $@
 %.trace: %
 	$(PYTHON) -m trace --trace --ignore-dir=$(PYLIBDIR) $<
-TestScripts.diff: | $(HOME)/Downloads/testp/TestScripts
-	diff -r$(IGNORESPACE) TestScripts/ $|
+%.diff: | $(HOME)/Downloads/testp/%
+	diff -r$(IGNORESPACE) $*/ $|
 TestScripts/%.diff: | $(HOME)/Downloads/testp/TestScripts/%
 	diff $(@:.diff=) $|
 TestScripts/%.update: | $(HOME)/Downloads/testp/TestScripts/%
