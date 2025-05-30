@@ -1,0 +1,5 @@
+.*.cmd
+MSRdrv.ko
+MSRdrv.mod.c
+Module.symvers
+modules.order
