@@ -5,6 +5,9 @@ PYLIBDIR = $(shell $(PYTHON) -c "import sysconfig; \
  print(sysconfig.get_path('stdlib'))")
 TIMESTAMP := $(shell date '+%Y%m%d%H%M%S')
 PROJECT_MAKEFILES := $(wildcard */Makefile */*/Makefile)
+# set IGNORESPACE= on command line to see difference in whitespace
+# set IGNORESPACE=q to just get a list of files that are different
+IGNORESPACE ?= w
 ifeq ($(SHOWENV),)
 	export TIMESTAMP
 else
@@ -43,7 +46,7 @@ uninstall:
 %.trace: %
 	$(PYTHON) -m trace --trace --ignore-dir=$(PYLIBDIR) $<
 TestScripts.diff: | $(HOME)/Downloads/testp/TestScripts
-	diff -rw TestScripts/ $|
+	diff -r$(IGNORESPACE) TestScripts/ $|
 TestScripts/%.diff: | $(HOME)/Downloads/testp/TestScripts/%
 	diff $(@:.diff=) $|
 TestScripts/%.update: | $(HOME)/Downloads/testp/TestScripts/%
