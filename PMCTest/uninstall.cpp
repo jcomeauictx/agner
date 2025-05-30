@@ -264,7 +264,7 @@ int CMSRDriver::AccessRegisters(void * pnIn, int nInLen, void * pnOut, int nOutL
 
     DWORD len = 0;
 
-    // This call results in a call to the driver rutine DispatchControl()
+    // This call results in a call to the driver routine DispatchControl()
     int res = ::DeviceIoControl(hDriver, IOCTL_MSR_DRIVER, pnIn, nInLen,
         pnOut, nOutLen, &len, NULL);
     if (!res) { 

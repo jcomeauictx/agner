@@ -8,6 +8,7 @@ PROJECT_MAKEFILES := $(wildcard */Makefile */*/Makefile)
 # set IGNORESPACE= on command line to see difference in whitespace
 # set IGNORESPACE=q to just get a list of files that are different
 IGNORESPACE ?= w
+# need to figure out a way to use SUBDIRS, not the cut-and-paste stuff below
 SUBDIRS := DriverSrcLinux DriverSrcWin PMCTest TestScripts
 ifeq ($(SHOWENV),)
 	export TIMESTAMP
@@ -51,6 +52,18 @@ uninstall:
 TestScripts/%.diff: | $(HOME)/Downloads/testp/TestScripts/%
 	diff $(@:.diff=) $|
 TestScripts/%.update: | $(HOME)/Downloads/testp/TestScripts/%
+	cp -f $| $(@:.update=)
+DriverSrcLinux/%.diff: | $(HOME)/Downloads/testp/DriverSrcLinux/%
+	diff $(@:.diff=) $|
+DriverSrcLinux/%.update: | $(HOME)/Downloads/testp/DriverSrcLinux/%
+	cp -f $| $(@:.update=)
+DriverSrcWin/%.diff: | $(HOME)/Downloads/testp/DriverSrcWin/%
+	diff $(@:.diff=) $|
+DriverSrcWin/%.update: | $(HOME)/Downloads/testp/DriverSrcWin/%
+	cp -f $| $(@:.update=)
+PMCTest/%.diff: | $(HOME)/Downloads/testp/PMCTest/%
+	diff $(@:.diff=) $|
+PMCTest/%.update: | $(HOME)/Downloads/testp/PMCTest/%
 	cp -f $| $(@:.update=)
 .FORCE:
 .PHONY: %.diff %.trace install clean distclean
