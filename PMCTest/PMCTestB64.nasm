@@ -84,7 +84,9 @@ SECTION .data   align = CACHELINESIZE
 %define NUM_COUNTERS  3
 
 CounterTypesDesired:
+%ifndef AMD64
     DD      1        ; core cycles (Intel only)
+%endif
     DD      9        ; instructions
     DD    100        ; uops
 
