@@ -196,7 +196,7 @@ function compileAndRun {
     fi
   fi
   # run the compiled test code
-  ./x >> $outdir/$outfile
+  ./x >> $outdir/$outfile 2>&1
   exitcode=$?
   if [ $exitcode -ne 0 ] ; then 
     echo "*** Execution failed with exit code $exitcode" >> $outdir/$outfile
