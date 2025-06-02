@@ -28,11 +28,11 @@
 // fix for gettid() not defined in this scope
 // https://stackoverflow.com/a/63494768/493161
 #if __GLIBC__ == 2 && __GLIBC_MINOR__ < 30
-#pragma message("redefining gettid() to avoid buggy compiler")
+#pragma message "redefining gettid() to avoid buggy compiler"
 #include <sys/syscall.h>
 #define gettid() syscall(SYS_gettid)
 #else
-#pragma message("gettid() should compile without error")
+#pragma message "gettid() should compile without error"
 #endif
 
 // #include <math.h> // for warmup only
